@@ -1,0 +1,855 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="TypeScript 基本类型   数据类型 关键字 描述    数字类型 number 双精度 64 位浮点值。它可以用来表示整数和分数。 let binaryLiteral: number &#x3D; 0b1010; &#x2F;&#x2F; 二进制 let octalLiteral: number &#x3D; 0o744;    &#x2F;&#x2F; 八进制 let decLiter">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TypeScript学习">
+<meta property="og:url" content="http://example.com/2022/09/14/TypeScript%E5%AD%A6%E4%B9%A0/index.html">
+<meta property="og:site_name" content="小約翰">
+<meta property="og:description" content="TypeScript 基本类型   数据类型 关键字 描述    数字类型 number 双精度 64 位浮点值。它可以用来表示整数和分数。 let binaryLiteral: number &#x3D; 0b1010; &#x2F;&#x2F; 二进制 let octalLiteral: number &#x3D; 0o744;    &#x2F;&#x2F; 八进制 let decLiter">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/22.jpg">
+<meta property="article:published_time" content="2022-09-14T13:18:09.000Z">
+<meta property="article:modified_time" content="2022-10-03T06:28:12.149Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="规范化">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/img/22.jpg">
+  
+  
+  
+  <title>TypeScript学习 - 小約翰</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>小约翰</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/3.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="TypeScript学习"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-09-14 21:18" pubdate>
+          2022年9月14日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          13k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          107 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">TypeScript学习</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="TypeScript-基本类型"><a href="#TypeScript-基本类型" class="headerlink" title="TypeScript 基本类型"></a>TypeScript 基本类型</h2><table>
+<thead>
+<tr>
+<th>数据类型</th>
+<th>关键字</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>数字类型</td>
+<td>number</td>
+<td>双精度 64 位浮点值。它可以用来表示整数和分数。 let binaryLiteral: number &#x3D; 0b1010; &#x2F;&#x2F; 二进制 let octalLiteral: number &#x3D; 0o744;    &#x2F;&#x2F; 八进制 let decLiteral: number &#x3D; 6;    &#x2F;&#x2F; 十进制 let hexLiteral: number &#x3D; 0xf00d;    &#x2F;&#x2F; 十六进制</td>
+</tr>
+<tr>
+<td>任意类型</td>
+<td>any</td>
+<td>声明为 any 的变量可以赋予任意类型的值。</td>
+</tr>
+<tr>
+<td>布尔类型</td>
+<td>boolean</td>
+<td>表示逻辑值：true 和 false。 let flag: boolean &#x3D; true;</td>
+</tr>
+<tr>
+<td>数组类型</td>
+<td>无</td>
+<td>声明变量为数组。 &#x2F;&#x2F; 在元素类型后面加上[] let arr: number[] &#x3D; [1, 2];  &#x2F;&#x2F; 或者使用数组泛型 let arr: Array<number> &#x3D; [1, 2];</number></td>
+</tr>
+<tr>
+<td>元组</td>
+<td>无</td>
+<td>元组类型用来表示已知元素数量和类型的数组，各元素的类型不必相同，对应位置的类型需要相同。 let x: [string, number]; x &#x3D; [‘Runoob’, 1];    &#x2F;&#x2F; 运行正常 x &#x3D; [1, ‘Runoob’];    &#x2F;&#x2F; 报错 console.log(x[0]);    &#x2F;&#x2F; 输出 Runoob</td>
+</tr>
+<tr>
+<td>枚举</td>
+<td>enum</td>
+<td>枚举类型用于定义数值集合。 enum Color {Red, Green, Blue}; let c: Color &#x3D; Color.Blue; console.log(c);    &#x2F;&#x2F; 输出 2</td>
+</tr>
+<tr>
+<td>viod</td>
+<td>viod</td>
+<td>用于标识方法返回值的类型，表示该方法没有返回值。<code>function hello(): void &#123;    alert(&quot;Hello Runoob&quot;); &#125;</code></td>
+</tr>
+<tr>
+<td>null</td>
+<td>null</td>
+<td>表示对象值缺失。</td>
+</tr>
+<tr>
+<td>undefined</td>
+<td>undefined</td>
+<td>用于初始化变量为一个未定义的值</td>
+</tr>
+<tr>
+<td>never</td>
+<td>never</td>
+<td>never 是其它类型（包括 null 和 undefined）的子类型，代表从不会出现的值。</td>
+</tr>
+</tbody></table>
+<p><strong>注意：</strong>TypeScript 和 JavaScript 没有整数类型。</p>
+<h3 id="任意值是-TypeScript-针对编程时类型不明确的变量使用的一种数据类型，它常用于以下三种情况。"><a href="#任意值是-TypeScript-针对编程时类型不明确的变量使用的一种数据类型，它常用于以下三种情况。" class="headerlink" title="任意值是 TypeScript 针对编程时类型不明确的变量使用的一种数据类型，它常用于以下三种情况。"></a>任意值是 TypeScript 针对编程时类型不明确的变量使用的一种数据类型，它常用于以下三种情况。</h3><p>1、变量的值会动态改变时，比如来自用户的输入，任意值类型可以让这些变量跳过编译阶段的类型检查，示例代码如下：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs awk">let x: any = <span class="hljs-number">1</span>;    <span class="hljs-regexp">//</span> 数字类型<br>x = <span class="hljs-string">&#x27;I am who I am&#x27;</span>;    <span class="hljs-regexp">//</span> 字符串类型<br>x = false;    <span class="hljs-regexp">//</span> 布尔类型<br></code></pre></td></tr></table></figure>
+
+<p>改写现有代码时，任意值允许在编译时可选择地包含或移除类型检查，示例代码如下：</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs reasonml"><span class="hljs-keyword">let</span> x: any = <span class="hljs-number">4</span>;<br>x.<span class="hljs-keyword">if</span><span class="hljs-constructor">ItExists()</span>;    <span class="hljs-comment">// 正确，ifItExists方法在运行时可能存在，但这里并不会检查</span><br>x.<span class="hljs-keyword">to</span><span class="hljs-constructor">Fixed()</span>;    <span class="hljs-comment">// 正确</span><br></code></pre></td></tr></table></figure>
+
+<p>定义存储各种类型数据的数组时，示例代码如下：</p>
+<figure class="highlight prolog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs prolog">let arrayList: any[] = [<span class="hljs-number">1</span>, false, <span class="hljs-string">&#x27;fine&#x27;</span>];<br>arrayList[<span class="hljs-number">1</span>] = <span class="hljs-number">100</span>;<br></code></pre></td></tr></table></figure>
+
+<h3 id="Null-和-Undefined"><a href="#Null-和-Undefined" class="headerlink" title="Null 和 Undefined"></a>Null 和 Undefined</h3><h4 id="null"><a href="#null" class="headerlink" title="null"></a>null</h4><p>在 JavaScript 中 null 表示 “什么都没有”。</p>
+<p>null是一个只有一个值的特殊类型。表示一个空对象引用。</p>
+<p>用 typeof 检测 null 返回是 object。</p>
+<h4 id="undefined"><a href="#undefined" class="headerlink" title="undefined"></a>undefined</h4><p>在 JavaScript 中, undefined 是一个没有设置值的变量。</p>
+<p>typeof 一个没有值的变量会返回 undefined。</p>
+<p>Null 和 Undefined 是其他任何类型（包括 void）的子类型，可以赋值给其它类型，如数字类型，此时，赋值后的类型会变成 null 或 undefined。而在TypeScript中启用严格的空校验（–strictNullChecks）特性，就可以使得null 和 undefined 只能被赋值给 void 或本身对应的类型，示例代码如下：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs awk"><span class="hljs-regexp">//</span> 启用 --strictNullChecks<br>let x: number;<br>x = <span class="hljs-number">1</span>; <span class="hljs-regexp">//</span> 编译正确<br>x = undefined;    <span class="hljs-regexp">//</span> 编译错误<br>x = null;    <span class="hljs-regexp">//</span> 编译错误<br></code></pre></td></tr></table></figure>
+
+<p>上面的例子中变量 x 只能是数字类型。如果一个类型可能出现 null 或 undefined， 可以用 | 来支持多种类型，示例代码如下：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs typescript"><span class="hljs-comment">// 启用 --strictNullChecks</span><br><span class="hljs-keyword">let</span> <span class="hljs-attr">x</span>: <span class="hljs-built_in">number</span> | <span class="hljs-literal">null</span> | <span class="hljs-literal">undefined</span>;<br>x = <span class="hljs-number">1</span>; <span class="hljs-comment">// 编译正确</span><br>x = <span class="hljs-literal">undefined</span>;    <span class="hljs-comment">// 编译正确</span><br>x = <span class="hljs-literal">null</span>;    <span class="hljs-comment">// 编译正确</span><br></code></pre></td></tr></table></figure>
+
+<p>never 是其它类型（包括 null 和 undefined）的子类型，代表从不会出现的值。这意味着声明为 never 类型的变量只能被 never 类型所赋值，在函数中它通常表现为抛出异常或无法执行到终止点（例如无限循环），示例代码如下：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs typescript"><span class="hljs-keyword">let</span> <span class="hljs-attr">x</span>: <span class="hljs-built_in">never</span>;<br><span class="hljs-keyword">let</span> <span class="hljs-attr">y</span>: <span class="hljs-built_in">number</span>;<br><br><span class="hljs-comment">// 编译错误，数字类型不能转为 never 类型</span><br>x = <span class="hljs-number">123</span>;<br><br><span class="hljs-comment">// 运行正确，never 类型可以赋值给 never类型</span><br>x = (<span class="hljs-function">()=&gt;</span>&#123; <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">&#x27;exception&#x27;</span>)&#125;)();<br><br><span class="hljs-comment">// 运行正确，never 类型可以赋值给 数字类型</span><br>y = (<span class="hljs-function">()=&gt;</span>&#123; <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">&#x27;exception&#x27;</span>)&#125;)();<br><br><span class="hljs-comment">// 返回值为 never 的函数可以是抛出异常的情况</span><br><span class="hljs-keyword">function</span> <span class="hljs-title function_">error</span>(<span class="hljs-params">message: <span class="hljs-built_in">string</span></span>): <span class="hljs-built_in">never</span> &#123;<br>    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(message);<br>&#125;<br><br><span class="hljs-comment">// 返回值为 never 的函数可以是无法被执行到的终止点的情况</span><br><span class="hljs-keyword">function</span> <span class="hljs-title function_">loop</span>(<span class="hljs-params"></span>): <span class="hljs-built_in">never</span> &#123;<br>    <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) &#123;&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="变量声明"><a href="#变量声明" class="headerlink" title="变量声明"></a>变量声明</h2><p>变量使用前必须先声明，我们可以使用 var 来声明变量。</p>
+<p>我们可以使用以下四种方式来声明变量：</p>
+<p>声明变量的类型及初始值：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs css"><span class="hljs-selector-tag">var</span> <span class="hljs-selector-attr">[变量名]</span> : [类型] = 值;<br></code></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs csharp"><span class="hljs-keyword">var</span> uname:<span class="hljs-built_in">string</span> = <span class="hljs-string">&quot;Runoob&quot;</span>;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs arcade"><span class="hljs-keyword">var</span> uname:string = <span class="hljs-string">&quot;Runoob&quot;</span>;<br><span class="hljs-keyword">var</span> score1:<span class="hljs-built_in">number</span> = <span class="hljs-number">50</span>;<br><span class="hljs-keyword">var</span> score2:<span class="hljs-built_in">number</span> = <span class="hljs-number">42.50</span><br><span class="hljs-keyword">var</span> <span class="hljs-built_in">sum</span> = score1 + score2<br><span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(<span class="hljs-string">&quot;名字: &quot;</span>+uname)<br><span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(<span class="hljs-string">&quot;第一个科目成绩: &quot;</span>+score1)<br><span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(<span class="hljs-string">&quot;第二个科目成绩: &quot;</span>+score2)<br><span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(<span class="hljs-string">&quot;总成绩: &quot;</span>+<span class="hljs-built_in">sum</span>)<br></code></pre></td></tr></table></figure>
+
+<h3 id="类型断言（Type-Assertion）"><a href="#类型断言（Type-Assertion）" class="headerlink" title="类型断言（Type Assertion）"></a>类型断言（Type Assertion）</h3><p>类型断言可以用来手动指定一个值的类型，即允许变量从一种类型更改为另一种类型。</p>
+<p>语法格式：</p>
+<figure class="highlight actionscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs actionscript">&lt;类型&gt;值 或 值 <span class="hljs-keyword">as</span> 类型<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs arcade"><span class="hljs-keyword">var</span> str = <span class="hljs-string">&#x27;1&#x27;</span> <br><span class="hljs-keyword">var</span> str2:<span class="hljs-built_in">number</span> = &lt;<span class="hljs-built_in">number</span>&gt; &lt;<span class="hljs-built_in">any</span>&gt; str   <span class="hljs-comment">//str、str2 是 string 类型</span><br><span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(str2)<br></code></pre></td></tr></table></figure>
+
+<h3 id="类型推断"><a href="#类型推断" class="headerlink" title="类型推断"></a>类型推断</h3><p>当类型没有给出时，TypeScript 编译器利用类型推断来推断类型。</p>
+<p>如果由于缺乏声明而不能推断出类型，那么它的类型被视作默认的动态 any 类型。</p>
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs arcade"><span class="hljs-keyword">var</span> num = <span class="hljs-number">2</span>;    <span class="hljs-comment">// 类型推断为 number</span><br><span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(<span class="hljs-string">&quot;num 变量的值为 &quot;</span>+num); <br>num = <span class="hljs-string">&quot;12&quot;</span>;    <span class="hljs-comment">// 编译错误</span><br><span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(num);<br></code></pre></td></tr></table></figure>
+
+<h3 id="变量作用域"><a href="#变量作用域" class="headerlink" title="变量作用域"></a>变量作用域</h3><p>变量作用域指定了变量定义的位置。</p>
+<p>程序中变量的可用性由变量作用域决定。</p>
+<p>TypeScript 有以下几种作用域：</p>
+<ul>
+<li><strong>全局作用域</strong> − 全局变量定义在程序结构的外部，它可以在你代码的任何位置使用。</li>
+<li><strong>类作用域</strong> − 这个变量也可以称为 <strong>字段</strong>。类变量声明在一个类里头，但在类的方法外面。 该变量可以通过类的对象来访问。类变量也可以是静态的，静态的变量可以通过类名直接访问。</li>
+<li><strong>局部作用域</strong> − 局部变量，局部变量只能在声明它的一个代码块（如：方法）中使用。</li>
+</ul>
+<p> 以下实例说明了三种作用域的使用：</p>
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs arcade"><span class="hljs-keyword">var</span> global_num = <span class="hljs-number">12</span>          <span class="hljs-comment">// 全局变量</span><br>class Numbers &#123; <br>   num_val = <span class="hljs-number">13</span>;             <span class="hljs-comment">// 实例变量</span><br>   static sval = <span class="hljs-number">10</span>;         <span class="hljs-comment">// 静态变量</span><br>   <br>   storeNum():<span class="hljs-keyword">void</span> &#123; <br>      <span class="hljs-keyword">var</span> local_num = <span class="hljs-number">14</span>;    <span class="hljs-comment">// 局部变量</span><br>   &#125; <br>&#125; <br><span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(<span class="hljs-string">&quot;全局变量为: &quot;</span>+global_num)  <br><span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(Numbers.sval)   <span class="hljs-comment">// 静态变量</span><br><span class="hljs-keyword">var</span> obj = <span class="hljs-keyword">new</span> Numbers(); <br><span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(<span class="hljs-string">&quot;实例变量: &quot;</span>+obj.num_val)<br></code></pre></td></tr></table></figure>
+
+<p>以上代码使用 tsc 命令编译为 JavaScript 代码为：</p>
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs arcade"><span class="hljs-keyword">var</span> global_num = <span class="hljs-number">12</span>; <span class="hljs-comment">// 全局变量</span><br><span class="hljs-keyword">var</span> Numbers = <span class="hljs-comment">/** @class */</span> (<span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) &#123;<br>    <span class="hljs-keyword">function</span> <span class="hljs-title function_">Numbers</span>(<span class="hljs-params"></span>) &#123;<br>        this.num_val = <span class="hljs-number">13</span>; <span class="hljs-comment">// 实例变量</span><br>    &#125;<br>    Numbers.prototype.storeNum = <span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) &#123;<br>        <span class="hljs-keyword">var</span> local_num = <span class="hljs-number">14</span>; <span class="hljs-comment">// 局部变量</span><br>    &#125;;<br>    Numbers.sval = <span class="hljs-number">10</span>; <span class="hljs-comment">// 静态变量</span><br>    <span class="hljs-keyword">return</span> Numbers;<br>&#125;());<br><span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(<span class="hljs-string">&quot;全局变量为: &quot;</span> + global_num);<br><span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(Numbers.sval); <span class="hljs-comment">// 静态变量</span><br><span class="hljs-keyword">var</span> obj = <span class="hljs-keyword">new</span> Numbers();<br><span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(<span class="hljs-string">&quot;实例变量: &quot;</span> + obj.num_val);<br></code></pre></td></tr></table></figure>
+
+<h2 id="运算符"><a href="#运算符" class="headerlink" title="运算符"></a>运算符</h2><h3 id="typeof-运算符"><a href="#typeof-运算符" class="headerlink" title="typeof 运算符"></a>typeof 运算符</h3><p>typeof 是一元运算符，返回操作数的数据类型。</p>
+<p>查看以下实例:</p>
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs arcade"><span class="hljs-keyword">var</span> num = <span class="hljs-number">12</span> <br><span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(<span class="hljs-built_in">typeof</span> num);   <span class="hljs-comment">//输出结果: number</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="instanceof"><a href="#instanceof" class="headerlink" title="instanceof"></a>instanceof</h3><p>instanceof 运算符用于判断对象是否为指定的类型</p>
+<h2 id="联合类型"><a href="#联合类型" class="headerlink" title="联合类型"></a>联合类型</h2><p>联合类型（Union Types）可以通过管道(|)将变量设置多种类型，赋值时可以根据设置的类型来赋值。</p>
+<p><strong>注意</strong>：只能赋值指定的类型，如果赋值其它类型就会报错。</p>
+<figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs coq">Type1|<span class="hljs-type">Type2</span>|<span class="hljs-type">Type3</span> <br></code></pre></td></tr></table></figure>
+
+<h4 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h4><p>声明一个联合类型：</p>
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs arcade"><span class="hljs-keyword">var</span> val:string|<span class="hljs-built_in">number</span> <br>val = <span class="hljs-number">12</span> <br><span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(<span class="hljs-string">&quot;数字为 &quot;</span>+ val) <br>val = <span class="hljs-string">&quot;Runoob&quot;</span> <br><span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(<span class="hljs-string">&quot;字符串为 &quot;</span> + val)<br></code></pre></td></tr></table></figure>
+
+<p>也可以将联合类型作为函数参数使用：</p>
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs arcade"><span class="hljs-keyword">function</span> <span class="hljs-title function_">disp</span>(<span class="hljs-params">name:string|string[]</span>) &#123; <br>        <span class="hljs-keyword">if</span>(<span class="hljs-built_in">typeof</span> name == <span class="hljs-string">&quot;string&quot;</span>) &#123; <br>                <span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(name) <br>        &#125; <span class="hljs-keyword">else</span> &#123; <br>                <span class="hljs-keyword">var</span> i; <br>                <span class="hljs-keyword">for</span>(i = <span class="hljs-number">0</span>;i&lt;name.<span class="hljs-built_in">length</span>;i++) &#123; <br>                <span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(name[i])<br>                &#125; <br>        &#125; <br>&#125; <br>disp(<span class="hljs-string">&quot;Runoob&quot;</span>) <br><span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(<span class="hljs-string">&quot;输出数组....&quot;</span>) <br>disp([<span class="hljs-string">&quot;Runoob&quot;</span>,<span class="hljs-string">&quot;Google&quot;</span>,<span class="hljs-string">&quot;Taobao&quot;</span>,<span class="hljs-string">&quot;Facebook&quot;</span>])<br></code></pre></td></tr></table></figure>
+
+<h3 id="联合类型数组"><a href="#联合类型数组" class="headerlink" title="联合类型数组"></a>联合类型数组</h3><p>我们也可以将数组声明为联合类型：</p>
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs arcade"><span class="hljs-keyword">var</span> arr:<span class="hljs-built_in">number</span>[]|string[]; <br><span class="hljs-keyword">var</span> i:<span class="hljs-built_in">number</span>; <br>arr = [<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">4</span>] <br><span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(<span class="hljs-string">&quot;**数字数组**&quot;</span>)  <br> <br><span class="hljs-keyword">for</span>(i = <span class="hljs-number">0</span>;i&lt;arr.<span class="hljs-built_in">length</span>;i++) &#123; <br>   <span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(arr[i]) <br>&#125;  <br> <br>arr = [<span class="hljs-string">&quot;Runoob&quot;</span>,<span class="hljs-string">&quot;Google&quot;</span>,<span class="hljs-string">&quot;Taobao&quot;</span>] <br><span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(<span class="hljs-string">&quot;**字符串数组**&quot;</span>)  <br> <br><span class="hljs-keyword">for</span>(i = <span class="hljs-number">0</span>;i&lt;arr.<span class="hljs-built_in">length</span>;i++) &#123; <br>   <span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(arr[i]) <br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="接口"><a href="#接口" class="headerlink" title="接口"></a>接口</h2><p>接口是一系列抽象方法的声明，是一些方法特征的集合，这些方法都应该是抽象的，需要由具体的类去实现，然后第三方就可以通过这组抽象方法调用，让具体的类执行具体的方法。</p>
+<figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs angelscript"><span class="hljs-keyword">interface</span> <span class="hljs-symbol">interface_name</span> &#123; <br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="实例-1"><a href="#实例-1" class="headerlink" title="实例"></a>实例</h3><p>以下实例中，我们定义了一个接口 IPerson，接着定义了一个变量 customer，它的类型是 IPerson。</p>
+<p>customer 实现了接口 IPerson 的属性和方法。</p>
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs arcade">interface IPerson &#123; <br>    <span class="hljs-attr">firstName</span>:string, <br>    <span class="hljs-attr">lastName</span>:string, <br>    <span class="hljs-attr">sayHi</span>: <span class="hljs-function"><span class="hljs-params">()</span>=&gt;</span>string <br>&#125; <br> <br><span class="hljs-keyword">var</span> customer:IPerson = &#123; <br>    <span class="hljs-attr">firstName</span>:<span class="hljs-string">&quot;Tom&quot;</span>,<br>    <span class="hljs-attr">lastName</span>:<span class="hljs-string">&quot;Hanks&quot;</span>, <br>    <span class="hljs-attr">sayHi</span>: ():<span class="hljs-function"><span class="hljs-params">string</span> =&gt;</span>&#123;<span class="hljs-keyword">return</span> <span class="hljs-string">&quot;Hi there&quot;</span>&#125; <br>&#125; <br> <br><span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(<span class="hljs-string">&quot;Customer 对象 &quot;</span>) <br><span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(customer.firstName) <br><span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(customer.lastName) <br><span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(customer.sayHi())  <br> <br><span class="hljs-keyword">var</span> employee:IPerson = &#123; <br>    <span class="hljs-attr">firstName</span>:<span class="hljs-string">&quot;Jim&quot;</span>,<br>    <span class="hljs-attr">lastName</span>:<span class="hljs-string">&quot;Blakes&quot;</span>, <br>    <span class="hljs-attr">sayHi</span>: ():<span class="hljs-function"><span class="hljs-params">string</span> =&gt;</span>&#123;<span class="hljs-keyword">return</span> <span class="hljs-string">&quot;Hello!!!&quot;</span>&#125; <br>&#125; <br> <br><span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(<span class="hljs-string">&quot;Employee  对象 &quot;</span>) <br><span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(employee.firstName) <br><span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(employee.lastName)<br></code></pre></td></tr></table></figure>
+
+<h3 id="联合类型和接口"><a href="#联合类型和接口" class="headerlink" title="联合类型和接口"></a>联合类型和接口</h3><p>以下实例演示了如何在接口中使用联合类型：</p>
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs arcade">interface RunOptions &#123; <br>    <span class="hljs-attr">program</span>:string; <br>    commandline:string[]|string|<span class="hljs-function">(<span class="hljs-params">(</span>)=&gt;</span>string); <br>&#125; <br> <br><span class="hljs-comment">// commandline 是字符串</span><br><span class="hljs-keyword">var</span> options:RunOptions = &#123;<span class="hljs-attr">program</span>:<span class="hljs-string">&quot;test1&quot;</span>,<span class="hljs-attr">commandline</span>:<span class="hljs-string">&quot;Hello&quot;</span>&#125;; <br><span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(options.commandline)  <br> <br><span class="hljs-comment">// commandline 是字符串数组</span><br>options = &#123;<span class="hljs-attr">program</span>:<span class="hljs-string">&quot;test1&quot;</span>,<span class="hljs-attr">commandline</span>:[<span class="hljs-string">&quot;Hello&quot;</span>,<span class="hljs-string">&quot;World&quot;</span>]&#125;; <br><span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(options.commandline[<span class="hljs-number">0</span>]); <br><span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(options.commandline[<span class="hljs-number">1</span>]);  <br> <br><span class="hljs-comment">// commandline 是一个函数表达式</span><br>options = &#123;<span class="hljs-attr">program</span>:<span class="hljs-string">&quot;test1&quot;</span>,<span class="hljs-attr">commandline</span>:<span class="hljs-function"><span class="hljs-params">()</span>=&gt;</span>&#123;<span class="hljs-keyword">return</span> <span class="hljs-string">&quot;**Hello World**&quot;</span>;&#125;&#125;; <br> <br><span class="hljs-keyword">var</span> fn:<span class="hljs-built_in">any</span> = options.commandline; <br><span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(fn());<br></code></pre></td></tr></table></figure>
+
+<h3 id="接口和数组"><a href="#接口和数组" class="headerlink" title="接口和数组"></a>接口和数组</h3><p>接口中我们可以将数组的索引值和元素设置为不同类型，索引值可以是数字或字符串。</p>
+<p>设置元素为字符串类型：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs awk">interface namelist &#123; <br>   [index:number]:string <br>&#125; <br> <br><span class="hljs-regexp">//</span> 类型一致，正确<br>var list2:namelist = [<span class="hljs-string">&quot;Google&quot;</span>,<span class="hljs-string">&quot;Runoob&quot;</span>,<span class="hljs-string">&quot;Taobao&quot;</span>]<br><span class="hljs-regexp">//</span> 错误元素 <span class="hljs-number">1</span> 不是 string 类型<br><span class="hljs-regexp">//</span> var list2:namelist = [<span class="hljs-string">&quot;Runoob&quot;</span>,<span class="hljs-number">1</span>,<span class="hljs-string">&quot;Taobao&quot;</span>]<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs awk">interface ages &#123; <br>   [index:string]:number <br>&#125; <br> <br>var agelist:ages; <br> <span class="hljs-regexp">//</span> 类型正确 <br>agelist[<span class="hljs-string">&quot;runoob&quot;</span>] = <span class="hljs-number">15</span>  <br> <br><span class="hljs-regexp">//</span> 类型错误，输出  error TS2322: Type <span class="hljs-string">&#x27;&quot;google&quot;&#x27;</span> is not assignable to type <span class="hljs-string">&#x27;number&#x27;</span>.<br><span class="hljs-regexp">//</span> agelist[<span class="hljs-number">2</span>] = <span class="hljs-string">&quot;google&quot;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="接口继承"><a href="#接口继承" class="headerlink" title="接口继承"></a>接口继承</h3><p>接口继承就是说接口可以通过其他接口来扩展自己。</p>
+<p>Typescript 允许接口继承多个接口。</p>
+<p>继承使用关键字 <strong>extends</strong>。</p>
+<p>单接口继承语法格式：</p>
+<h3 id="单继承实例"><a href="#单继承实例" class="headerlink" title="单继承实例"></a>单继承实例</h3><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs typescript"><span class="hljs-keyword">interface</span> <span class="hljs-title class_">Person</span> &#123; <br>   <span class="hljs-attr">age</span>:<span class="hljs-built_in">number</span> <br>&#125; <br> <br><span class="hljs-keyword">interface</span> <span class="hljs-title class_">Musician</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Person</span> &#123; <br>   <span class="hljs-attr">instrument</span>:<span class="hljs-built_in">string</span> <br>&#125; <br> <br><span class="hljs-keyword">var</span> drummer = &lt;<span class="hljs-title class_">Musician</span>&gt;&#123;&#125;; <br>drummer.<span class="hljs-property">age</span> = <span class="hljs-number">27</span> <br>drummer.<span class="hljs-property">instrument</span> = <span class="hljs-string">&quot;Drums&quot;</span> <br><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;年龄:  &quot;</span>+drummer.<span class="hljs-property">age</span>)<br><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;喜欢的乐器:  &quot;</span>+drummer.<span class="hljs-property">instrument</span>)<br></code></pre></td></tr></table></figure>
+
+<h3 id="多继承实例"><a href="#多继承实例" class="headerlink" title="多继承实例"></a>多继承实例</h3><figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs haxe"><span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">IParent1</span> </span>&#123; <br>    v1:<span class="hljs-type">number </span><br>&#125; <br> <br><span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">IParent2</span> </span>&#123; <br>    v2:<span class="hljs-type">number </span><br>&#125; <br> <br><span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">Child</span> <span class="hljs-keyword"><span class="hljs-keyword">extends</span> <span class="hljs-type">IParent1</span></span>, <span class="hljs-title">IParent2</span> </span>&#123; &#125; <br><span class="hljs-keyword">var</span> Iobj:<span class="hljs-type">Child </span>= &#123; v1:<span class="hljs-type">12</span>, v2:<span class="hljs-type">23</span>&#125; <br>console.log(<span class="hljs-string">&quot;value 1: &quot;</span>+Iobj.v1+<span class="hljs-string">&quot; value 2: &quot;</span>+Iobj.v2)<br></code></pre></td></tr></table></figure>
+
+<h2 id="类"><a href="#类" class="headerlink" title="类"></a>类</h2><p>TypeScript 是面向对象的 JavaScript。</p>
+<p>类描述了所创建的对象共同的属性和方法。</p>
+<p>TypeScript 支持面向对象的所有特性，比如 类、接口等。</p>
+<p>TypeScript 类定义方式如下：</p>
+<figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs angelscript"><span class="hljs-keyword">class</span> <span class="hljs-symbol">class_name</span> &#123; <br>    <span class="hljs-comment">// 类作用域</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>定义类的关键字为 class，后面紧跟类名，类可以包含以下几个模块（类的数据成员）：</p>
+<ul>
+<li><strong>字段</strong> − 字段是类里面声明的变量。字段表示对象的有关数据。</li>
+<li><strong>构造函数</strong> − 类实例化时调用，可以为类的对象分配内存。</li>
+<li><strong>方法</strong> − 方法为对象要执行的操作。</li>
+</ul>
+<p>实例</p>
+<figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs angelscript"><span class="hljs-keyword">class</span> <span class="hljs-symbol">Person</span> &#123;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="创建类的数据成员"><a href="#创建类的数据成员" class="headerlink" title="创建类的数据成员"></a>创建类的数据成员</h3><p>以下实例我们声明了类 Car，包含字段为 engine，构造函数在类实例化后初始化字段 engine。</p>
+<p>this 关键字表示当前类实例化的对象。注意构造函数的参数名与字段名相同，this.engine 表示类的字段。</p>
+<p>此外我们也在类中定义了一个方法 disp()。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs typescript"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Car</span> &#123; <br>    <span class="hljs-comment">// 字段 </span><br>    <span class="hljs-attr">engine</span>:<span class="hljs-built_in">string</span>; <br> <br>    <span class="hljs-comment">// 构造函数 </span><br>    <span class="hljs-title function_">constructor</span>(<span class="hljs-params">engine:<span class="hljs-built_in">string</span></span>) &#123; <br>        <span class="hljs-variable language_">this</span>.<span class="hljs-property">engine</span> = engine <br>    &#125;  <br> <br>    <span class="hljs-comment">// 方法 </span><br>    <span class="hljs-title function_">disp</span>():<span class="hljs-built_in">void</span> &#123; <br>        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;发动机为 :   &quot;</span>+<span class="hljs-variable language_">this</span>.<span class="hljs-property">engine</span>) <br>    &#125; <br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="实例化对象"><a href="#实例化对象" class="headerlink" title="实例化对象"></a>实例化对象</h3><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs typescript"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Car</span> &#123; <br>   <span class="hljs-comment">// 字段</span><br>   <span class="hljs-attr">engine</span>:<span class="hljs-built_in">string</span>; <br>   <br>   <span class="hljs-comment">// 构造函数</span><br>   <span class="hljs-title function_">constructor</span>(<span class="hljs-params">engine:<span class="hljs-built_in">string</span></span>) &#123; <br>      <span class="hljs-variable language_">this</span>.<span class="hljs-property">engine</span> = engine <br>   &#125;  <br>   <br>   <span class="hljs-comment">// 方法</span><br>   <span class="hljs-title function_">disp</span>():<span class="hljs-built_in">void</span> &#123; <br>      <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;函数中显示发动机型号  :   &quot;</span>+<span class="hljs-variable language_">this</span>.<span class="hljs-property">engine</span>) <br>   &#125; <br>&#125; <br> <br><span class="hljs-comment">// 创建一个对象</span><br><span class="hljs-keyword">var</span> obj = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Car</span>(<span class="hljs-string">&quot;XXSY1&quot;</span>)<br> <br><span class="hljs-comment">// 访问字段</span><br><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;读取发动机型号 :  &quot;</span>+obj.<span class="hljs-property">engine</span>)  <br> <br><span class="hljs-comment">// 访问方法</span><br>obj.<span class="hljs-title function_">disp</span>()<br></code></pre></td></tr></table></figure>
+
+<h3 id="类的继承"><a href="#类的继承" class="headerlink" title="类的继承"></a>类的继承</h3><p>TypeScript 支持继承类，即我们可以在创建类的时候继承一个已存在的类，这个已存在的类称为父类，继承它的类称为子类。</p>
+<p>类继承使用关键字 <strong>extends</strong>，子类除了不能继承父类的私有成员(方法和属性)和构造函数，其他的都可以继承。</p>
+<p>TypeScript 一次只能继承一个类，不支持继承多个类，但 TypeScript 支持多重继承（A 继承 B，B 继承 C）。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs scala"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">child_class_name</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">parent_class_name</span></span><br></code></pre></td></tr></table></figure>
+
+<p>实例</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs scala"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Shape</span> </span>&#123; <br>   <span class="hljs-type">Area</span>:number <br>   <br>   constructor(a:number) &#123; <br>      <span class="hljs-keyword">this</span>.<span class="hljs-type">Area</span> = a <br>   &#125; <br>&#125; <br> <br><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Circle</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Shape</span> </span>&#123; <br>   disp():void &#123; <br>      console.log(<span class="hljs-string">&quot;圆的面积:  &quot;</span>+<span class="hljs-keyword">this</span>.<span class="hljs-type">Area</span>) <br>   &#125; <br>&#125;<br>  <br><span class="hljs-keyword">var</span> obj = <span class="hljs-keyword">new</span> <span class="hljs-type">Circle</span>(<span class="hljs-number">223</span>); <br>obj.disp()<br></code></pre></td></tr></table></figure>
+
+<h3 id="多继承"><a href="#多继承" class="headerlink" title="多继承"></a>多继承</h3><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs scala"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Root</span> </span>&#123; <br>   str:string; <br>&#125; <br> <br><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Child</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Root</span> </span>&#123;&#125; <br><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Leaf</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Child</span> </span>&#123;&#125; <span class="hljs-comment">// 多重继承，继承了 Child 和 Root 类</span><br> <br><span class="hljs-keyword">var</span> obj = <span class="hljs-keyword">new</span> <span class="hljs-type">Leaf</span>(); <br>obj.str =<span class="hljs-string">&quot;hello&quot;</span> <br>console.log(obj.str)<br></code></pre></td></tr></table></figure>
+
+<h3 id="继承类的方法重写"><a href="#继承类的方法重写" class="headerlink" title="继承类的方法重写"></a>继承类的方法重写</h3><p>类继承后，子类可以对父类的方法重新定义，这个过程称之为方法的重写。</p>
+<p>其中 super 关键字是对父类的直接引用，该关键字可以引用父类的属性和方法。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs scala"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PrinterClass</span> </span>&#123; <br>   doPrint():void &#123;<br>      console.log(<span class="hljs-string">&quot;父类的 doPrint() 方法。&quot;</span>) <br>   &#125; <br>&#125; <br> <br><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">StringPrinter</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">PrinterClass</span> </span>&#123; <br>   doPrint():void &#123; <br>      <span class="hljs-keyword">super</span>.doPrint() <span class="hljs-comment">// 调用父类的函数</span><br>      console.log(<span class="hljs-string">&quot;子类的 doPrint()方法。&quot;</span>)<br>   &#125; <br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="static-关键字"><a href="#static-关键字" class="headerlink" title="static 关键字"></a>static 关键字</h3><p>static 关键字用于定义类的数据成员（属性和方法）为静态的，静态成员可以直接通过类名调用。</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs dart"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">StaticMem</span> </span>&#123;  <br>   <span class="hljs-keyword">static</span> <span class="hljs-built_in">num</span>:number; <br>   <br>   <span class="hljs-keyword">static</span> disp():<span class="hljs-keyword">void</span> &#123; <br>      console.log(<span class="hljs-string">&quot;num 值为 &quot;</span>+ StaticMem.<span class="hljs-built_in">num</span>) <br>   &#125; <br>&#125; <br> <br>StaticMem.<span class="hljs-built_in">num</span> = <span class="hljs-number">12</span>     <span class="hljs-comment">// 初始化静态变量</span><br>StaticMem.disp()       <span class="hljs-comment">// 调用静态方法</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="instanceof-运算符"><a href="#instanceof-运算符" class="headerlink" title="instanceof 运算符"></a>instanceof 运算符</h3><p>instanceof 运算符用于判断对象是否是指定的类型，如果是返回 true，否则返回 false。</p>
+<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs haxe"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Person</span></span>&#123; &#125; <br><span class="hljs-keyword">var</span> obj = <span class="hljs-keyword">new</span> <span class="hljs-type">Person</span>() <br><span class="hljs-keyword">var</span> isPerson = obj instanceof Person; <br>console.log(<span class="hljs-string">&quot;obj 对象是 Person 类实例化来的吗？ &quot;</span> + isPerson);<br></code></pre></td></tr></table></figure>
+
+<h3 id="访问控制修饰符"><a href="#访问控制修饰符" class="headerlink" title="访问控制修饰符"></a>访问控制修饰符</h3><p>TypeScript 中，可以使用访问控制符来保护对类、变量、方法和构造方法的访问。TypeScript 支持 3 种不同的访问权限。</p>
+<ul>
+<li><strong>public（默认）</strong> : 公有，可以在任何地方被访问。</li>
+<li><strong>protected</strong> : 受保护，可以被其自身以及其子类访问。</li>
+<li><strong>private</strong> : 私有，只能被其定义所在的类访问。</li>
+</ul>
+<p>以下实例定义了两个变量 str1 和 str2，str1 为 public，str2 为 private，实例化后可以访问 str1，如果要访问 str2 则会编译错误。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs typescript"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Encapsulate</span> &#123; <br>   <span class="hljs-attr">str1</span>:<span class="hljs-built_in">string</span> = <span class="hljs-string">&quot;hello&quot;</span> <br>   <span class="hljs-keyword">private</span> <span class="hljs-attr">str2</span>:<span class="hljs-built_in">string</span> = <span class="hljs-string">&quot;world&quot;</span> <br>&#125;<br> <br><span class="hljs-keyword">var</span> obj = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Encapsulate</span>() <br><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(obj.<span class="hljs-property">str1</span>)     <span class="hljs-comment">// 可访问 </span><br><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(obj.<span class="hljs-property">str2</span>)   <span class="hljs-comment">// 编译错误， str2 是私有的</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="类和接口"><a href="#类和接口" class="headerlink" title="类和接口"></a>类和接口</h3><p>类可以实现接口，使用关键字 implements，并将 interest 字段作为类的属性使用。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs typescript"><span class="hljs-keyword">interface</span> <span class="hljs-title class_">ILoan</span> &#123; <br>   <span class="hljs-attr">interest</span>:<span class="hljs-built_in">number</span> <br>&#125; <br> <br><span class="hljs-keyword">class</span> <span class="hljs-title class_">AgriLoan</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">ILoan</span> &#123; <br>   <span class="hljs-attr">interest</span>:<span class="hljs-built_in">number</span> <br>   <span class="hljs-attr">rebate</span>:<span class="hljs-built_in">number</span> <br>   <br>   <span class="hljs-comment">//构造函数</span><br>   <span class="hljs-title function_">constructor</span>(<span class="hljs-params">interest:<span class="hljs-built_in">number</span>,rebate:<span class="hljs-built_in">number</span></span>) &#123; <br>      <span class="hljs-variable language_">this</span>.<span class="hljs-property">interest</span> = interest <br>      <span class="hljs-variable language_">this</span>.<span class="hljs-property">rebate</span> = rebate <br>   &#125; <br>&#125; <br> <br><span class="hljs-keyword">var</span> obj = <span class="hljs-keyword">new</span> <span class="hljs-title class_">AgriLoan</span>(<span class="hljs-number">10</span>,<span class="hljs-number">1</span>) <br><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;利润为 : &quot;</span>+obj.<span class="hljs-property">interest</span>+<span class="hljs-string">&quot;，抽成为 : &quot;</span>+obj.<span class="hljs-property">rebate</span> )<br></code></pre></td></tr></table></figure>
+
+<h2 id="对象"><a href="#对象" class="headerlink" title="对象"></a>对象</h2><p>对象是包含一组键值对的实例。 值可以是标量、函数、数组、对象等，如下实例：</p>
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs arcade"><span class="hljs-keyword">var</span> sites = &#123; <br>   <span class="hljs-attr">site1</span>:<span class="hljs-string">&quot;Runoob&quot;</span>, <br>   <span class="hljs-attr">site2</span>:<span class="hljs-string">&quot;Google&quot;</span> <br>&#125;; <br><span class="hljs-comment">// 访问对象的值</span><br><span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(sites.site1) <br><span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(sites.site2)<br></code></pre></td></tr></table></figure>
+
+<h3 id="类型模板"><a href="#类型模板" class="headerlink" title="类型模板"></a>类型模板</h3><figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs dts">var <span class="hljs-attr">sites</span> <span class="hljs-operator">=</span> <span class="hljs-punctuation">&#123;</span> <br><span class="hljs-symbol">   site1:</span><span class="hljs-string">&quot;Runoob&quot;</span>, <br><span class="hljs-symbol">   site2:</span><span class="hljs-string">&quot;Google&quot;</span> <br><span class="hljs-punctuation">&#125;;</span><br></code></pre></td></tr></table></figure>
+
+<p>对象也可以作为一个参数传递给函数</p>
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs arcade"><span class="hljs-keyword">var</span> sites = &#123; <br>    <span class="hljs-attr">site1</span>:<span class="hljs-string">&quot;Runoob&quot;</span>, <br>    <span class="hljs-attr">site2</span>:<span class="hljs-string">&quot;Google&quot;</span>,<br>&#125;; <br><span class="hljs-keyword">var</span> invokesites = <span class="hljs-keyword">function</span>(<span class="hljs-params">obj: &#123; site1:string, site2 :string &#125;</span>) &#123; <br>    <span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(<span class="hljs-string">&quot;site1 :&quot;</span>+obj.site1) <br>    <span class="hljs-built_in">console</span>.<span class="hljs-built_in">log</span>(<span class="hljs-string">&quot;site2 :&quot;</span>+obj.site2) <br>&#125; <br>invokesites(sites)<br></code></pre></td></tr></table></figure>
+
+<h2 id="命名空间"><a href="#命名空间" class="headerlink" title="命名空间"></a>命名空间</h2><p>命名空间一个最明确的目的就是解决重名问题。</p>
+<p>假设这样一种情况，当一个班上有两个名叫小明的学生时，为了明确区分它们，我们在使用名字之外，不得不使用一些额外的信息，比如他们的姓（王小明，李小明），或者他们父母的名字等等。</p>
+<p>命名空间定义了标识符的可见范围，一个标识符可在多个名字空间中定义，它在不同名字空间中的含义是互不相干的。这样，在一个新的名字空间中可定义任何标识符，它们不会与任何已有的标识符发生冲突，因为已有的定义都处于其他名字空间中。</p>
+<figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs angelscript"><span class="hljs-keyword">namespace</span> <span class="hljs-symbol">SomeNameSpaceName</span> &#123; <br>   export <span class="hljs-keyword">interface</span> <span class="hljs-symbol">ISomeInterfaceName</span> &#123;      &#125;  <br>   export <span class="hljs-keyword">class</span> <span class="hljs-symbol">SomeClassName</span> &#123;      &#125;  <br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>以上定义了一个命名空间 SomeNameSpaceName，如果我们需要在外部可以调用 SomeNameSpaceName 中的类和接口，则需要在类和接口添加 <strong>export</strong> 关键字。</p>
+<p>要在另外一个命名空间调用语法格式为：</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs abnf">SomeNameSpaceName.SomeClassName<span class="hljs-comment">;</span><br></code></pre></td></tr></table></figure>
+
+<p>如果一个命名空间在一个单独的 TypeScript 文件中，则应使用三斜杠 &#x2F;&#x2F;&#x2F; 引用它，语法格式如下：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk"><span class="hljs-regexp">//</span><span class="hljs-regexp">/ &lt;reference path = &quot;SomeFileName.ts&quot; /</span>&gt;<br></code></pre></td></tr></table></figure>
+
+<p>实例</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs typescript"><span class="hljs-keyword">namespace</span> <span class="hljs-title class_">Drawing</span> &#123; <br>    <span class="hljs-keyword">export</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">IShape</span> &#123; <br>        <span class="hljs-title function_">draw</span>(); <br>    &#125;<br>&#125;<br><br><span class="hljs-comment">/// &lt;reference path = &quot;IShape.ts&quot; /&gt; </span><br><span class="hljs-keyword">namespace</span> <span class="hljs-title class_">Drawing</span> &#123; <br>    <span class="hljs-keyword">export</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Circle</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">IShape</span> &#123; <br>        <span class="hljs-keyword">public</span> <span class="hljs-title function_">draw</span>(<span class="hljs-params"></span>) &#123; <br>            <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Circle is drawn&quot;</span>); <br>        &#125;  <br>    &#125;<br>&#125;<br><br><span class="hljs-comment">/// &lt;reference path = &quot;IShape.ts&quot; /&gt; </span><br><span class="hljs-keyword">namespace</span> <span class="hljs-title class_">Drawing</span> &#123; <br>    <span class="hljs-keyword">export</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Triangle</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">IShape</span> &#123; <br>        <span class="hljs-keyword">public</span> <span class="hljs-title function_">draw</span>(<span class="hljs-params"></span>) &#123; <br>            <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Triangle is drawn&quot;</span>); <br>        &#125; <br>    &#125; <br>&#125;<br><br>调用<br><span class="hljs-comment">/// &lt;reference path = &quot;IShape.ts&quot; /&gt;   </span><br><span class="hljs-comment">/// &lt;reference path = &quot;Circle.ts&quot; /&gt; </span><br><span class="hljs-comment">/// &lt;reference path = &quot;Triangle.ts&quot; /&gt;  </span><br><span class="hljs-keyword">function</span> <span class="hljs-title function_">drawAllShapes</span>(<span class="hljs-params">shape:Drawing.IShape</span>) &#123; <br>    shape.<span class="hljs-title function_">draw</span>(); <br>&#125; <br><span class="hljs-title function_">drawAllShapes</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Drawing</span>.<span class="hljs-title class_">Circle</span>());<br><span class="hljs-title function_">drawAllShapes</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Drawing</span>.<span class="hljs-title class_">Triangle</span>());<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E8%A7%84%E8%8C%83%E5%8C%96/">#规范化</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>TypeScript学习</div>
+      <div>http://example.com/2022/09/14/TypeScript学习/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>John Doe</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年9月14日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/09/25/Flask%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6/" title="Flask上传文件">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Flask上传文件</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/09/13/BetterScroll/" title="BetterScroll">
+                        <span class="hidden-mobile">BetterScroll</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+  
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+<script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+<script type="text/javascript" src="/js/fireworks.js"></script>
+<script type="text/javascript" src="\js\snow.js"></script>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><script async>window.onload=function(){var a=document.createElement('script'),b=document.getElementsByTagName('script')[0];a.type='text/javascript',a.async=!0,a.src='/sw-register.js?v='+Date.now(),b.parentNode.insertBefore(a,b)};</script></body></html>
