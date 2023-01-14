@@ -1,0 +1,1386 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="分布式搜索引擎02在昨天的学习中，我们已经导入了大量数据到elasticsearch中，实现了elasticsearch的数据存储功能。但elasticsearch最擅长的还是搜索和数据分析。 所以今天，我们研究下elasticsearch的数据搜索功能。我们会分别使用DSL和RestClient实现搜索。 0.学习目标1.DSL查询文档elasticsearch的查询依然是基于JSON风格的DS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分布式搜索引擎02">
+<meta property="og:url" content="http://example.com/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/index.html">
+<meta property="og:site_name" content="小約翰">
+<meta property="og:description" content="分布式搜索引擎02在昨天的学习中，我们已经导入了大量数据到elasticsearch中，实现了elasticsearch的数据存储功能。但elasticsearch最擅长的还是搜索和数据分析。 所以今天，我们研究下elasticsearch的数据搜索功能。我们会分别使用DSL和RestClient实现搜索。 0.学习目标1.DSL查询文档elasticsearch的查询依然是基于JSON风格的DS">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/11.png">
+<meta property="article:published_time" content="2023-01-14T15:18:06.000Z">
+<meta property="article:modified_time" content="2023-01-14T15:19:32.203Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/img/11.png">
+  
+  
+  
+  <title>分布式搜索引擎02 - 小約翰</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>小约翰</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/3.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="分布式搜索引擎02"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-01-14 23:18" pubdate>
+          2023年1月14日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          27k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          229 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">分布式搜索引擎02</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="分布式搜索引擎02"><a href="#分布式搜索引擎02" class="headerlink" title="分布式搜索引擎02"></a>分布式搜索引擎02</h1><p>在昨天的学习中，我们已经导入了大量数据到elasticsearch中，实现了elasticsearch的数据存储功能。但elasticsearch最擅长的还是搜索和数据分析。</p>
+<p>所以今天，我们研究下elasticsearch的数据搜索功能。我们会分别使用<strong>DSL</strong>和<strong>RestClient</strong>实现搜索。</p>
+<h1 id="0-学习目标"><a href="#0-学习目标" class="headerlink" title="0.学习目标"></a>0.学习目标</h1><h1 id="1-DSL查询文档"><a href="#1-DSL查询文档" class="headerlink" title="1.DSL查询文档"></a>1.DSL查询文档</h1><p>elasticsearch的查询依然是基于JSON风格的DSL来实现的。</p>
+<h2 id="1-1-DSL查询分类"><a href="#1-1-DSL查询分类" class="headerlink" title="1.1.DSL查询分类"></a>1.1.DSL查询分类</h2><p>Elasticsearch提供了基于JSON的DSL（<a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html">Domain Specific Language</a>）来定义查询。常见的查询类型包括：</p>
+<ul>
+<li><p><strong>查询所有</strong>：查询出所有数据，一般测试用。例如：match_all</p>
+</li>
+<li><p><strong>全文检索（full text）查询</strong>：利用分词器对用户输入内容分词，然后去倒排索引库中匹配。例如：</p>
+<ul>
+<li>match_query</li>
+<li>multi_match_query</li>
+</ul>
+</li>
+<li><p><strong>精确查询</strong>：根据精确词条值查找数据，一般是查找keyword、数值、日期、boolean等类型字段。例如：</p>
+<ul>
+<li>ids</li>
+<li>range</li>
+<li>term</li>
+</ul>
+</li>
+<li><p><strong>地理（geo）查询</strong>：根据经纬度查询。例如：</p>
+<ul>
+<li>geo_distance</li>
+<li>geo_bounding_box</li>
+</ul>
+</li>
+<li><p><strong>复合（compound）查询</strong>：复合查询可以将上述各种查询条件组合起来，合并查询条件。例如：</p>
+<ul>
+<li>bool</li>
+<li>function_score</li>
+</ul>
+</li>
+</ul>
+<p>查询的语法基本一致：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs json">GET /indexName/_search<br><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;query&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;查询类型&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;查询条件&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;条件值&quot;</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p>我们以查询所有为例，其中：</p>
+<ul>
+<li>查询类型为match_all</li>
+<li>没有查询条件</li>
+</ul>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-comment">// 查询所有</span><br>GET /indexName/_search<br><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;query&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;match_all&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p>其它查询无非就是<strong>查询类型</strong>、<strong>查询条件</strong>的变化。</p>
+<h2 id="1-2-全文检索查询"><a href="#1-2-全文检索查询" class="headerlink" title="1.2.全文检索查询"></a>1.2.全文检索查询</h2><h3 id="1-2-1-使用场景"><a href="#1-2-1-使用场景" class="headerlink" title="1.2.1.使用场景"></a>1.2.1.使用场景</h3><p>全文检索查询的基本流程如下：</p>
+<ul>
+<li>对用户搜索的内容做分词，得到词条</li>
+<li>根据词条去倒排索引库中匹配，得到文档id</li>
+<li>根据文档id找到文档，返回给用户</li>
+</ul>
+<p>比较常用的场景包括：</p>
+<ul>
+<li>商城的输入框搜索</li>
+<li>百度输入框搜索</li>
+</ul>
+<p>例如京东：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721165326938.png" srcset="/img/loading.gif" lazyload alt="image-20210721165326938"></p>
+<p>因为是拿着词条去匹配，因此参与搜索的字段也必须是可分词的text类型的字段。</p>
+<h3 id="1-2-2-基本语法"><a href="#1-2-2-基本语法" class="headerlink" title="1.2.2.基本语法"></a>1.2.2.基本语法</h3><p>常见的全文检索查询包括：</p>
+<ul>
+<li>match查询：单字段查询</li>
+<li>multi_match查询：多字段查询，任意一个字段符合条件就算符合查询条件</li>
+</ul>
+<p>match查询语法如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs json">GET /indexName/_search<br><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;query&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;match&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;FIELD&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;TEXT&quot;</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p>mulit_match语法如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs json">GET /indexName/_search<br><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;query&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;multi_match&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;query&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;TEXT&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;fields&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;FIELD1&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-string">&quot; FIELD12&quot;</span><span class="hljs-punctuation">]</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="1-2-3-示例"><a href="#1-2-3-示例" class="headerlink" title="1.2.3.示例"></a>1.2.3.示例</h3><p>match查询示例：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721170455419.png" srcset="/img/loading.gif" lazyload alt="image-20210721170455419"></p>
+<p>multi_match查询示例：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721170720691.png" srcset="/img/loading.gif" lazyload alt="image-20210721170720691"></p>
+<p>可以看到，两种查询结果是一样的，为什么？</p>
+<p>因为我们将brand、name、business值都利用copy_to复制到了all字段中。因此你根据三个字段搜索，和根据all字段搜索效果当然一样了。</p>
+<p>但是，搜索字段越多，对查询性能影响越大，因此建议采用copy_to，然后单字段查询的方式。</p>
+<h3 id="1-2-4-总结"><a href="#1-2-4-总结" class="headerlink" title="1.2.4.总结"></a>1.2.4.总结</h3><p>match和multi_match的区别是什么？</p>
+<ul>
+<li>match：根据一个字段查询</li>
+<li>multi_match：根据多个字段查询，参与查询字段越多，查询性能越差</li>
+</ul>
+<h2 id="1-3-精准查询"><a href="#1-3-精准查询" class="headerlink" title="1.3.精准查询"></a>1.3.精准查询</h2><p>精确查询一般是查找keyword、数值、日期、boolean等类型字段。所以<strong>不会</strong>对搜索条件分词。常见的有：</p>
+<ul>
+<li>term：根据词条精确值查询</li>
+<li>range：根据值的范围查询</li>
+</ul>
+<h3 id="1-3-1-term查询"><a href="#1-3-1-term查询" class="headerlink" title="1.3.1.term查询"></a>1.3.1.term查询</h3><p>因为精确查询的字段搜是不分词的字段，因此查询的条件也必须是<strong>不分词</strong>的词条。查询时，用户输入的内容跟自动值完全匹配时才认为符合条件。如果用户输入的内容过多，反而搜索不到数据。</p>
+<p>语法说明：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-comment">// term查询</span><br>GET /indexName/_search<br><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;query&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;term&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;FIELD&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">&quot;value&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;VALUE&quot;</span><br>      <span class="hljs-punctuation">&#125;</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+
+
+<p>示例：</p>
+<p>当我搜索的是精确词条时，能正确查询出结果：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721171655308.png" srcset="/img/loading.gif" lazyload alt="image-20210721171655308"></p>
+<p>但是，当我搜索的内容不是词条，而是多个词语形成的短语时，反而搜索不到：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721171838378.png" srcset="/img/loading.gif" lazyload alt="image-20210721171838378"></p>
+<h3 id="1-3-2-range查询"><a href="#1-3-2-range查询" class="headerlink" title="1.3.2.range查询"></a>1.3.2.range查询</h3><p>范围查询，一般应用在对数值类型做范围过滤的时候。比如做价格范围过滤。</p>
+<p>基本语法：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-comment">// range查询</span><br>GET /indexName/_search<br><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;query&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;range&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;FIELD&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">&quot;gte&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">10</span><span class="hljs-punctuation">,</span> <span class="hljs-comment">// 这里的gte代表大于等于，gt则代表大于</span><br>        <span class="hljs-attr">&quot;lte&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">20</span> <span class="hljs-comment">// lte代表小于等于，lt则代表小于</span><br>      <span class="hljs-punctuation">&#125;</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+
+
+<p>示例：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721172307172.png" srcset="/img/loading.gif" lazyload alt="image-20210721172307172"></p>
+<h3 id="1-3-3-总结"><a href="#1-3-3-总结" class="headerlink" title="1.3.3.总结"></a>1.3.3.总结</h3><p>精确查询常见的有哪些？</p>
+<ul>
+<li>term查询：根据词条精确匹配，一般搜索keyword类型、数值类型、布尔类型、日期类型字段</li>
+<li>range查询：根据数值范围查询，可以是数值、日期的范围</li>
+</ul>
+<h2 id="1-4-地理坐标查询"><a href="#1-4-地理坐标查询" class="headerlink" title="1.4.地理坐标查询"></a>1.4.地理坐标查询</h2><p>所谓的地理坐标查询，其实就是根据经纬度查询，官方文档：<a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/geo-queries.html">https://www.elastic.co/guide/en/elasticsearch/reference/current/geo-queries.html</a></p>
+<p>常见的使用场景包括：</p>
+<ul>
+<li>携程：搜索我附近的酒店</li>
+<li>滴滴：搜索我附近的出租车</li>
+<li>微信：搜索我附近的人</li>
+</ul>
+<p>附近的酒店：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721172645103.png" srcset="/img/loading.gif" lazyload alt="image-20210721172645103"> </p>
+<p>附近的车：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721172654880.png" srcset="/img/loading.gif" lazyload alt="image-20210721172654880"> </p>
+<h3 id="1-4-1-矩形范围查询"><a href="#1-4-1-矩形范围查询" class="headerlink" title="1.4.1.矩形范围查询"></a>1.4.1.矩形范围查询</h3><p>矩形范围查询，也就是geo_bounding_box查询，查询坐标落在某个矩形范围的所有文档：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/DKV9HZbVS6.gif" srcset="/img/loading.gif" lazyload alt="DKV9HZbVS6"></p>
+<p>查询时，需要指定矩形的<strong>左上</strong>、<strong>右下</strong>两个点的坐标，然后画出一个矩形，落在该矩形内的都是符合条件的点。</p>
+<p>语法如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-comment">// geo_bounding_box查询</span><br>GET /indexName/_search<br><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;query&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;geo_bounding_box&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;FIELD&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">&quot;top_left&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span> <span class="hljs-comment">// 左上点</span><br>          <span class="hljs-attr">&quot;lat&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">31.1</span><span class="hljs-punctuation">,</span><br>          <span class="hljs-attr">&quot;lon&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">121.5</span><br>        <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>        <span class="hljs-attr">&quot;bottom_right&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span> <span class="hljs-comment">// 右下点</span><br>          <span class="hljs-attr">&quot;lat&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">30.9</span><span class="hljs-punctuation">,</span><br>          <span class="hljs-attr">&quot;lon&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">121.7</span><br>        <span class="hljs-punctuation">&#125;</span><br>      <span class="hljs-punctuation">&#125;</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+
+
+
+
+<p>这种并不符合“附近的人”这样的需求，所以我们就不做了。</p>
+<h3 id="1-4-2-附近查询"><a href="#1-4-2-附近查询" class="headerlink" title="1.4.2.附近查询"></a>1.4.2.附近查询</h3><p>附近查询，也叫做距离查询（geo_distance）：查询到指定中心点小于某个距离值的所有文档。</p>
+<p>换句话来说，在地图上找一个点作为圆心，以指定距离为半径，画一个圆，落在圆内的坐标都算符合条件：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/vZrdKAh19C.gif" srcset="/img/loading.gif" lazyload alt="vZrdKAh19C"></p>
+<p>语法说明：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-comment">// geo_distance 查询</span><br>GET /indexName/_search<br><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;query&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;geo_distance&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;distance&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;15km&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-comment">// 半径</span><br>      <span class="hljs-attr">&quot;FIELD&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;31.21,121.5&quot;</span> <span class="hljs-comment">// 圆心</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+
+
+<p>示例：</p>
+<p>我们先搜索陆家嘴附近15km的酒店：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721175443234.png" srcset="/img/loading.gif" lazyload alt="image-20210721175443234"></p>
+<p>发现共有47家酒店。</p>
+<p>然后把半径缩短到3公里：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721182031475.png" srcset="/img/loading.gif" lazyload alt="image-20210721182031475"></p>
+<p>可以发现，搜索到的酒店数量减少到了5家。</p>
+<h2 id="1-5-复合查询"><a href="#1-5-复合查询" class="headerlink" title="1.5.复合查询"></a>1.5.复合查询</h2><p>复合（compound）查询：复合查询可以将其它简单查询组合起来，实现更复杂的搜索逻辑。常见的有两种：</p>
+<ul>
+<li>fuction score：算分函数查询，可以控制文档相关性算分，控制文档排名</li>
+<li>bool query：布尔查询，利用逻辑关系组合多个其它的查询，实现复杂搜索</li>
+</ul>
+<h3 id="1-5-1-相关性算分"><a href="#1-5-1-相关性算分" class="headerlink" title="1.5.1.相关性算分"></a>1.5.1.相关性算分</h3><p>当我们利用match查询时，文档结果会根据与搜索词条的关联度打分（_score），返回结果时按照分值降序排列。</p>
+<p>例如，我们搜索 “虹桥如家”，结果如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">[</span><br>  <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;_score&quot;</span> <span class="hljs-punctuation">:</span> <span class="hljs-number">17.850193</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;_source&quot;</span> <span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;name&quot;</span> <span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;虹桥如家酒店真不错&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;_score&quot;</span> <span class="hljs-punctuation">:</span> <span class="hljs-number">12.259849</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;_source&quot;</span> <span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;name&quot;</span> <span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;外滩如家酒店真不错&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;_score&quot;</span> <span class="hljs-punctuation">:</span> <span class="hljs-number">11.91091</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;_source&quot;</span> <span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;name&quot;</span> <span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;迪士尼如家酒店真不错&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">]</span><br></code></pre></td></tr></table></figure>
+
+
+
+<p>在elasticsearch中，早期使用的打分算法是TF-IDF算法，公式如下：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721190152134.png" srcset="/img/loading.gif" lazyload alt="image-20210721190152134"></p>
+<p>在后来的5.1版本升级中，elasticsearch将算法改进为BM25算法，公式如下：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721190416214.png" srcset="/img/loading.gif" lazyload alt="image-20210721190416214"></p>
+<p>TF-IDF算法有一各缺陷，就是词条频率越高，文档得分也会越高，单个词条对文档影响较大。而BM25则会让单个词条的算分有一个上限，曲线更加平滑：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721190907320.png" srcset="/img/loading.gif" lazyload alt="image-20210721190907320"></p>
+<p>小结：elasticsearch会根据词条和文档的相关度做打分，算法由两种：</p>
+<ul>
+<li>TF-IDF算法</li>
+<li>BM25算法，elasticsearch5.1版本后采用的算法</li>
+</ul>
+<h3 id="1-5-2-算分函数查询"><a href="#1-5-2-算分函数查询" class="headerlink" title="1.5.2.算分函数查询"></a>1.5.2.算分函数查询</h3><p>根据相关度打分是比较合理的需求，但<strong>合理的不一定是产品经理需要</strong>的。</p>
+<p>以百度为例，你搜索的结果中，并不是相关度越高排名越靠前，而是谁掏的钱多排名就越靠前。如图：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721191144560.png" srcset="/img/loading.gif" lazyload alt="image-20210721191144560"></p>
+<p>要想认为控制相关性算分，就需要利用elasticsearch中的function score 查询了。</p>
+<h4 id="1）语法说明"><a href="#1）语法说明" class="headerlink" title="1）语法说明"></a>1）语法说明</h4><p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721191544750.png" srcset="/img/loading.gif" lazyload alt="image-20210721191544750"></p>
+<p>function score 查询中包含四部分内容：</p>
+<ul>
+<li><strong>原始查询</strong>条件：query部分，基于这个条件搜索文档，并且基于BM25算法给文档打分，<strong>原始算分</strong>（query score)</li>
+<li><strong>过滤条件</strong>：filter部分，符合该条件的文档才会重新算分</li>
+<li><strong>算分函数</strong>：符合filter条件的文档要根据这个函数做运算，得到的<strong>函数算分</strong>（function score），有四种函数<ul>
+<li>weight：函数结果是常量</li>
+<li>field_value_factor：以文档中的某个字段值作为函数结果</li>
+<li>random_score：以随机数作为函数结果</li>
+<li>script_score：自定义算分函数算法</li>
+</ul>
+</li>
+<li><strong>运算模式</strong>：算分函数的结果、原始查询的相关性算分，两者之间的运算方式，包括：<ul>
+<li>multiply：相乘</li>
+<li>replace：用function score替换query score</li>
+<li>其它，例如：sum、avg、max、min</li>
+</ul>
+</li>
+</ul>
+<p>function score的运行流程如下：</p>
+<ul>
+<li>1）根据<strong>原始条件</strong>查询搜索文档，并且计算相关性算分，称为<strong>原始算分</strong>（query score）</li>
+<li>2）根据<strong>过滤条件</strong>，过滤文档</li>
+<li>3）符合<strong>过滤条件</strong>的文档，基于<strong>算分函数</strong>运算，得到<strong>函数算分</strong>（function score）</li>
+<li>4）将<strong>原始算分</strong>（query score）和<strong>函数算分</strong>（function score）基于<strong>运算模式</strong>做运算，得到最终结果，作为相关性算分。</li>
+</ul>
+<p>因此，其中的关键点是：</p>
+<ul>
+<li>过滤条件：决定哪些文档的算分被修改</li>
+<li>算分函数：决定函数算分的算法</li>
+<li>运算模式：决定最终算分结果</li>
+</ul>
+<h4 id="2）示例"><a href="#2）示例" class="headerlink" title="2）示例"></a>2）示例</h4><p>需求：给“如家”这个品牌的酒店排名靠前一些</p>
+<p>翻译一下这个需求，转换为之前说的四个要点：</p>
+<ul>
+<li>原始条件：不确定，可以任意变化</li>
+<li>过滤条件：brand &#x3D; “如家”</li>
+<li>算分函数：可以简单粗暴，直接给固定的算分结果，weight</li>
+<li>运算模式：比如求和</li>
+</ul>
+<p>因此最终的DSL语句如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs json">GET /hotel/_search<br><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;query&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;function_score&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;query&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span>  .... <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span> <span class="hljs-comment">// 原始查询，可以是任意条件</span><br>      <span class="hljs-attr">&quot;functions&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span> <span class="hljs-comment">// 算分函数</span><br>        <span class="hljs-punctuation">&#123;</span><br>          <span class="hljs-attr">&quot;filter&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span> <span class="hljs-comment">// 满足的条件，品牌必须是如家</span><br>            <span class="hljs-attr">&quot;term&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>              <span class="hljs-attr">&quot;brand&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;如家&quot;</span><br>            <span class="hljs-punctuation">&#125;</span><br>          <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>          <span class="hljs-attr">&quot;weight&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">2</span> <span class="hljs-comment">// 算分权重为2</span><br>        <span class="hljs-punctuation">&#125;</span><br>      <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;boost_mode&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;sum&quot;</span> <span class="hljs-comment">// 加权模式，求和</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+
+
+<p>测试，在未添加算分函数时，如家得分如下：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721193152520.png" srcset="/img/loading.gif" lazyload alt="image-20210721193152520"></p>
+<p>添加了算分函数后，如家得分就提升了：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721193458182.png" srcset="/img/loading.gif" lazyload alt="image-20210721193458182"></p>
+<h4 id="3）小结"><a href="#3）小结" class="headerlink" title="3）小结"></a>3）小结</h4><p>function score query定义的三要素是什么？</p>
+<ul>
+<li>过滤条件：哪些文档要加分</li>
+<li>算分函数：如何计算function score</li>
+<li>加权方式：function score 与 query score如何运算</li>
+</ul>
+<h3 id="1-5-3-布尔查询"><a href="#1-5-3-布尔查询" class="headerlink" title="1.5.3.布尔查询"></a>1.5.3.布尔查询</h3><p>布尔查询是一个或多个查询子句的组合，每一个子句就是一个<strong>子查询</strong>。子查询的组合方式有：</p>
+<ul>
+<li>must：必须匹配每个子查询，类似“与”</li>
+<li>should：选择性匹配子查询，类似“或”</li>
+<li>must_not：必须不匹配，<strong>不参与算分</strong>，类似“非”</li>
+<li>filter：必须匹配，<strong>不参与算分</strong></li>
+</ul>
+<p>比如在搜索酒店时，除了关键字搜索外，我们还可能根据品牌、价格、城市等字段做过滤：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721193822848.png" srcset="/img/loading.gif" lazyload alt="image-20210721193822848"></p>
+<p>每一个不同的字段，其查询的条件、方式都不一样，必须是多个不同的查询，而要组合这些查询，就必须用bool查询了。</p>
+<p>需要注意的是，搜索时，参与<strong>打分的字段越多，查询的性能也越差</strong>。因此这种多条件查询时，建议这样做：</p>
+<ul>
+<li>搜索框的关键字搜索，是全文检索查询，使用must查询，参与算分</li>
+<li>其它过滤条件，采用filter查询。不参与算分</li>
+</ul>
+<h4 id="1）语法示例："><a href="#1）语法示例：" class="headerlink" title="1）语法示例："></a>1）语法示例：</h4><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs json">GET /hotel/_search<br><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;query&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;bool&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;must&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>        <span class="hljs-punctuation">&#123;</span><span class="hljs-attr">&quot;term&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><span class="hljs-attr">&quot;city&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;上海&quot;</span> <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">&#125;</span><br>      <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;should&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>        <span class="hljs-punctuation">&#123;</span><span class="hljs-attr">&quot;term&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><span class="hljs-attr">&quot;brand&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;皇冠假日&quot;</span> <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>        <span class="hljs-punctuation">&#123;</span><span class="hljs-attr">&quot;term&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><span class="hljs-attr">&quot;brand&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;华美达&quot;</span> <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">&#125;</span><br>      <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;must_not&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>        <span class="hljs-punctuation">&#123;</span> <span class="hljs-attr">&quot;range&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span> <span class="hljs-attr">&quot;price&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span> <span class="hljs-attr">&quot;lte&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">500</span> <span class="hljs-punctuation">&#125;</span> <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">&#125;</span><br>      <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;filter&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>        <span class="hljs-punctuation">&#123;</span> <span class="hljs-attr">&quot;range&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><span class="hljs-attr">&quot;score&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span> <span class="hljs-attr">&quot;gte&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">45</span> <span class="hljs-punctuation">&#125;</span> <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">&#125;</span><br>      <span class="hljs-punctuation">]</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h4 id="2）示例-1"><a href="#2）示例-1" class="headerlink" title="2）示例"></a>2）示例</h4><p>需求：搜索名字包含“如家”，价格不高于400，在坐标31.21,121.5周围10km范围内的酒店。</p>
+<p>分析：</p>
+<ul>
+<li>名称搜索，属于全文检索查询，应该参与算分。放到must中</li>
+<li>价格不高于400，用range查询，属于过滤条件，不参与算分。放到must_not中</li>
+<li>周围10km范围内，用geo_distance查询，属于过滤条件，不参与算分。放到filter中</li>
+</ul>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721194744183.png" srcset="/img/loading.gif" lazyload alt="image-20210721194744183"></p>
+<h4 id="3）小结-1"><a href="#3）小结-1" class="headerlink" title="3）小结"></a>3）小结</h4><p>bool查询有几种逻辑关系？</p>
+<ul>
+<li>must：必须匹配的条件，可以理解为“与”</li>
+<li>should：选择性匹配的条件，可以理解为“或”</li>
+<li>must_not：必须不匹配的条件，不参与打分</li>
+<li>filter：必须匹配的条件，不参与打分</li>
+</ul>
+<h1 id="2-搜索结果处理"><a href="#2-搜索结果处理" class="headerlink" title="2.搜索结果处理"></a>2.搜索结果处理</h1><p>搜索的结果可以按照用户指定的方式去处理或展示。</p>
+<h2 id="2-1-排序"><a href="#2-1-排序" class="headerlink" title="2.1.排序"></a>2.1.排序</h2><p>elasticsearch默认是根据相关度算分（_score）来排序，但是也支持自定义方式对搜索<a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/sort-search-results.html">结果排序</a>。可以排序字段类型有：keyword类型、数值类型、地理坐标类型、日期类型等。</p>
+<h3 id="2-1-1-普通字段排序"><a href="#2-1-1-普通字段排序" class="headerlink" title="2.1.1.普通字段排序"></a>2.1.1.普通字段排序</h3><p>keyword、数值、日期类型排序的语法基本一致。</p>
+<p><strong>语法</strong>：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs json">GET /indexName/_search<br><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;query&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;match_all&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;sort&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>    <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;FIELD&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;desc&quot;</span>  <span class="hljs-comment">// 排序字段、排序方式ASC、DESC</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">]</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p>排序条件是一个数组，也就是可以写多个排序条件。按照声明的顺序，当第一个条件相等时，再按照第二个条件排序，以此类推</p>
+<p><strong>示例</strong>：</p>
+<p>需求描述：酒店数据按照用户评价（score)降序排序，评价相同的按照价格(price)升序排序</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721195728306.png" srcset="/img/loading.gif" lazyload alt="image-20210721195728306"></p>
+<h3 id="2-1-2-地理坐标排序"><a href="#2-1-2-地理坐标排序" class="headerlink" title="2.1.2.地理坐标排序"></a>2.1.2.地理坐标排序</h3><p>地理坐标排序略有不同。</p>
+<p><strong>语法说明</strong>：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs json">GET /indexName/_search<br><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;query&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;match_all&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;sort&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>    <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;_geo_distance&quot;</span> <span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>          <span class="hljs-attr">&quot;FIELD&quot;</span> <span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;纬度，经度&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-comment">// 文档中geo_point类型的字段名、目标坐标点</span><br>          <span class="hljs-attr">&quot;order&quot;</span> <span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;asc&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-comment">// 排序方式</span><br>          <span class="hljs-attr">&quot;unit&quot;</span> <span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;km&quot;</span> <span class="hljs-comment">// 排序的距离单位</span><br>      <span class="hljs-punctuation">&#125;</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">]</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p>这个查询的含义是：</p>
+<ul>
+<li>指定一个坐标，作为目标点</li>
+<li>计算每一个文档中，指定字段（必须是geo_point类型）的坐标 到目标点的距离是多少</li>
+<li>根据距离排序</li>
+</ul>
+<p><strong>示例：</strong></p>
+<p>需求描述：实现对酒店数据按照到你的位置坐标的距离升序排序</p>
+<p>提示：获取你的位置的经纬度的方式：<a target="_blank" rel="noopener" href="https://lbs.amap.com/demo/jsapi-v2/example/map/click-to-get-lnglat/">https://lbs.amap.com/demo/jsapi-v2/example/map/click-to-get-lnglat/</a></p>
+<p>假设我的位置是：31.034661，121.612282，寻找我周围距离最近的酒店。</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721200214690.png" srcset="/img/loading.gif" lazyload alt="image-20210721200214690"></p>
+<h2 id="2-2-分页"><a href="#2-2-分页" class="headerlink" title="2.2.分页"></a>2.2.分页</h2><p>elasticsearch 默认情况下只返回top10的数据。而如果要查询更多数据就需要修改分页参数了。elasticsearch中通过修改from、size参数来控制要返回的分页结果：</p>
+<ul>
+<li>from：从第几个文档开始</li>
+<li>size：总共查询几个文档</li>
+</ul>
+<p>类似于mysql中的<code>limit ?, ?</code></p>
+<h3 id="2-2-1-基本的分页"><a href="#2-2-1-基本的分页" class="headerlink" title="2.2.1.基本的分页"></a>2.2.1.基本的分页</h3><p>分页的基本语法如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs json">GET /hotel/_search<br><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;query&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;match_all&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;from&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span> <span class="hljs-comment">// 分页开始的位置，默认为0</span><br>  <span class="hljs-attr">&quot;size&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">10</span><span class="hljs-punctuation">,</span> <span class="hljs-comment">// 期望获取的文档总数</span><br>  <span class="hljs-attr">&quot;sort&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>    <span class="hljs-punctuation">&#123;</span><span class="hljs-attr">&quot;price&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;asc&quot;</span><span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">]</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+
+
+
+
+<h3 id="2-2-2-深度分页问题"><a href="#2-2-2-深度分页问题" class="headerlink" title="2.2.2.深度分页问题"></a>2.2.2.深度分页问题</h3><p>现在，我要查询990~1000的数据，查询逻辑要这么写：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs json">GET /hotel/_search<br><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;query&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;match_all&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;from&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">990</span><span class="hljs-punctuation">,</span> <span class="hljs-comment">// 分页开始的位置，默认为0</span><br>  <span class="hljs-attr">&quot;size&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">10</span><span class="hljs-punctuation">,</span> <span class="hljs-comment">// 期望获取的文档总数</span><br>  <span class="hljs-attr">&quot;sort&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>    <span class="hljs-punctuation">&#123;</span><span class="hljs-attr">&quot;price&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;asc&quot;</span><span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">]</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p>这里是查询990开始的数据，也就是 第990~第1000条 数据。</p>
+<p>不过，elasticsearch内部分页时，必须先查询 0~1000条，然后截取其中的990 ~ 1000的这10条：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721200643029.png" srcset="/img/loading.gif" lazyload alt="image-20210721200643029"></p>
+<p>查询TOP1000，如果es是单点模式，这并无太大影响。</p>
+<p>但是elasticsearch将来一定是集群，例如我集群有5个节点，我要查询TOP1000的数据，并不是每个节点查询200条就可以了。</p>
+<p>因为节点A的TOP200，在另一个节点可能排到10000名以外了。</p>
+<p>因此要想获取整个集群的TOP1000，必须先查询出每个节点的TOP1000，汇总结果后，重新排名，重新截取TOP1000。</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721201003229.png" srcset="/img/loading.gif" lazyload alt="image-20210721201003229"></p>
+<p>那如果我要查询9900~10000的数据呢？是不是要先查询TOP10000呢？那每个节点都要查询10000条？汇总到内存中？</p>
+<p>当查询分页深度较大时，汇总数据过多，对内存和CPU会产生非常大的压力，因此elasticsearch会禁止from+ size 超过10000的请求。</p>
+<p>针对深度分页，ES提供了两种解决方案，<a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html">官方文档</a>：</p>
+<ul>
+<li>search after：分页时需要排序，原理是从上一次的排序值开始，查询下一页数据。官方推荐使用的方式。</li>
+<li>scroll：原理将排序后的文档id形成快照，保存在内存。官方已经不推荐使用。</li>
+</ul>
+<h3 id="2-2-3-小结"><a href="#2-2-3-小结" class="headerlink" title="2.2.3.小结"></a>2.2.3.小结</h3><p>分页查询的常见实现方案以及优缺点：</p>
+<ul>
+<li><p><code>from + size</code>：</p>
+<ul>
+<li>优点：支持随机翻页</li>
+<li>缺点：深度分页问题，默认查询上限（from + size）是10000</li>
+<li>场景：百度、京东、谷歌、淘宝这样的随机翻页搜索</li>
+</ul>
+</li>
+<li><p><code>after search</code>：</p>
+<ul>
+<li>优点：没有查询上限（单次查询的size不超过10000）</li>
+<li>缺点：只能向后逐页查询，不支持随机翻页</li>
+<li>场景：没有随机翻页需求的搜索，例如手机向下滚动翻页</li>
+</ul>
+</li>
+<li><p><code>scroll</code>：</p>
+<ul>
+<li>优点：没有查询上限（单次查询的size不超过10000）</li>
+<li>缺点：会有额外内存消耗，并且搜索结果是非实时的</li>
+<li>场景：海量数据的获取和迁移。从ES7.1开始不推荐，建议用 after search方案。</li>
+</ul>
+</li>
+</ul>
+<h2 id="2-3-高亮"><a href="#2-3-高亮" class="headerlink" title="2.3.高亮"></a>2.3.高亮</h2><h3 id="2-3-1-高亮原理"><a href="#2-3-1-高亮原理" class="headerlink" title="2.3.1.高亮原理"></a>2.3.1.高亮原理</h3><p>什么是高亮显示呢？</p>
+<p>我们在百度，京东搜索时，关键字会变成红色，比较醒目，这叫高亮显示：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721202705030.png" srcset="/img/loading.gif" lazyload alt="image-20210721202705030"></p>
+<p>高亮显示的实现分为两步：</p>
+<ul>
+<li>1）给文档中的所有关键字都添加一个标签，例如<code>&lt;em&gt;</code>标签</li>
+<li>2）页面给<code>&lt;em&gt;</code>标签编写CSS样式</li>
+</ul>
+<h3 id="2-3-2-实现高亮"><a href="#2-3-2-实现高亮" class="headerlink" title="2.3.2.实现高亮"></a>2.3.2.实现高亮</h3><p><strong>高亮的语法</strong>：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs json">GET /hotel/_search<br><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;query&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;match&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;FIELD&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;TEXT&quot;</span> <span class="hljs-comment">// 查询条件，高亮一定要使用全文检索查询</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;highlight&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;fields&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span> <span class="hljs-comment">// 指定要高亮的字段</span><br>      <span class="hljs-attr">&quot;FIELD&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">&quot;pre_tags&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;&lt;em&gt;&quot;</span><span class="hljs-punctuation">,</span>  <span class="hljs-comment">// 用来标记高亮字段的前置标签</span><br>        <span class="hljs-attr">&quot;post_tags&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;&lt;/em&gt;&quot;</span> <span class="hljs-comment">// 用来标记高亮字段的后置标签</span><br>      <span class="hljs-punctuation">&#125;</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+
+
+<p><strong>注意：</strong></p>
+<ul>
+<li>高亮是对关键字高亮，因此<strong>搜索条件必须带有关键字</strong>，而不能是范围这样的查询。</li>
+<li>默认情况下，<strong>高亮的字段，必须与搜索指定的字段一致</strong>，否则无法高亮</li>
+<li>如果要对非搜索字段高亮，则需要添加一个属性：required_field_match&#x3D;false</li>
+</ul>
+<p><strong>示例</strong>：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721203349633.png" srcset="/img/loading.gif" lazyload alt="image-20210721203349633"></p>
+<h2 id="2-4-总结"><a href="#2-4-总结" class="headerlink" title="2.4.总结"></a>2.4.总结</h2><p>查询的DSL是一个大的JSON对象，包含下列属性：</p>
+<ul>
+<li>query：查询条件</li>
+<li>from和size：分页条件</li>
+<li>sort：排序条件</li>
+<li>highlight：高亮条件</li>
+</ul>
+<p>示例：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721203657850.png" srcset="/img/loading.gif" lazyload alt="image-20210721203657850"></p>
+<h1 id="3-RestClient查询文档"><a href="#3-RestClient查询文档" class="headerlink" title="3.RestClient查询文档"></a>3.RestClient查询文档</h1><p>文档的查询同样适用昨天学习的 RestHighLevelClient对象，基本步骤包括：</p>
+<ul>
+<li>1）准备Request对象</li>
+<li>2）准备请求参数</li>
+<li>3）发起请求</li>
+<li>4）解析响应</li>
+</ul>
+<h2 id="3-1-快速入门"><a href="#3-1-快速入门" class="headerlink" title="3.1.快速入门"></a>3.1.快速入门</h2><p>我们以match_all查询为例</p>
+<h3 id="3-1-1-发起查询请求"><a href="#3-1-1-发起查询请求" class="headerlink" title="3.1.1.发起查询请求"></a>3.1.1.发起查询请求</h3><p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721203950559.png" srcset="/img/loading.gif" lazyload alt="image-20210721203950559"></p>
+<p>代码解读：</p>
+<ul>
+<li><p>第一步，创建<code>SearchRequest</code>对象，指定索引库名</p>
+</li>
+<li><p>第二步，利用<code>request.source()</code>构建DSL，DSL中可以包含查询、分页、排序、高亮等</p>
+<ul>
+<li><code>query()</code>：代表查询条件，利用<code>QueryBuilders.matchAllQuery()</code>构建一个match_all查询的DSL</li>
+</ul>
+</li>
+<li><p>第三步，利用client.search()发送请求，得到响应</p>
+</li>
+</ul>
+<p>这里关键的API有两个，一个是<code>request.source()</code>，其中包含了查询、排序、分页、高亮等所有功能：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721215640790.png" srcset="/img/loading.gif" lazyload alt="image-20210721215640790"></p>
+<p>另一个是<code>QueryBuilders</code>，其中包含match、term、function_score、bool等各种查询：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721215729236.png" srcset="/img/loading.gif" lazyload alt="image-20210721215729236"></p>
+<h3 id="3-1-2-解析响应"><a href="#3-1-2-解析响应" class="headerlink" title="3.1.2.解析响应"></a>3.1.2.解析响应</h3><p>响应结果的解析：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721214221057.png" srcset="/img/loading.gif" lazyload alt="image-20210721214221057"></p>
+<p>elasticsearch返回的结果是一个JSON字符串，结构包含：</p>
+<ul>
+<li><code>hits</code>：命中的结果<ul>
+<li><code>total</code>：总条数，其中的value是具体的总条数值</li>
+<li><code>max_score</code>：所有结果中得分最高的文档的相关性算分</li>
+<li><code>hits</code>：搜索结果的文档数组，其中的每个文档都是一个json对象<ul>
+<li><code>_source</code>：文档中的原始数据，也是json对象</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>因此，我们解析响应结果，就是逐层解析JSON字符串，流程如下：</p>
+<ul>
+<li><code>SearchHits</code>：通过response.getHits()获取，就是JSON中的最外层的hits，代表命中的结果<ul>
+<li><code>SearchHits#getTotalHits().value</code>：获取总条数信息</li>
+<li><code>SearchHits#getHits()</code>：获取SearchHit数组，也就是文档数组<ul>
+<li><code>SearchHit#getSourceAsString()</code>：获取文档结果中的_source，也就是原始的json文档数据</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-1-3-完整代码"><a href="#3-1-3-完整代码" class="headerlink" title="3.1.3.完整代码"></a>3.1.3.完整代码</h3><p>完整代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Test</span><br><span class="hljs-keyword">void</span> <span class="hljs-title function_">testMatchAll</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> IOException &#123;<br>    <span class="hljs-comment">// 1.准备Request</span><br>    <span class="hljs-type">SearchRequest</span> <span class="hljs-variable">request</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SearchRequest</span>(<span class="hljs-string">&quot;hotel&quot;</span>);<br>    <span class="hljs-comment">// 2.准备DSL</span><br>    request.source()<br>        .query(QueryBuilders.matchAllQuery());<br>    <span class="hljs-comment">// 3.发送请求</span><br>    <span class="hljs-type">SearchResponse</span> <span class="hljs-variable">response</span> <span class="hljs-operator">=</span> client.search(request, RequestOptions.DEFAULT);<br><br>    <span class="hljs-comment">// 4.解析响应</span><br>    handleResponse(response);<br>&#125;<br><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">handleResponse</span><span class="hljs-params">(SearchResponse response)</span> &#123;<br>    <span class="hljs-comment">// 4.解析响应</span><br>    <span class="hljs-type">SearchHits</span> <span class="hljs-variable">searchHits</span> <span class="hljs-operator">=</span> response.getHits();<br>    <span class="hljs-comment">// 4.1.获取总条数</span><br>    <span class="hljs-type">long</span> <span class="hljs-variable">total</span> <span class="hljs-operator">=</span> searchHits.getTotalHits().value;<br>    System.out.println(<span class="hljs-string">&quot;共搜索到&quot;</span> + total + <span class="hljs-string">&quot;条数据&quot;</span>);<br>    <span class="hljs-comment">// 4.2.文档数组</span><br>    SearchHit[] hits = searchHits.getHits();<br>    <span class="hljs-comment">// 4.3.遍历</span><br>    <span class="hljs-keyword">for</span> (SearchHit hit : hits) &#123;<br>        <span class="hljs-comment">// 获取文档source</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">json</span> <span class="hljs-operator">=</span> hit.getSourceAsString();<br>        <span class="hljs-comment">// 反序列化</span><br>        <span class="hljs-type">HotelDoc</span> <span class="hljs-variable">hotelDoc</span> <span class="hljs-operator">=</span> JSON.parseObject(json, HotelDoc.class);<br>        System.out.println(<span class="hljs-string">&quot;hotelDoc = &quot;</span> + hotelDoc);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="3-1-4-小结"><a href="#3-1-4-小结" class="headerlink" title="3.1.4.小结"></a>3.1.4.小结</h3><p>查询的基本步骤是：</p>
+<ol>
+<li><p>创建SearchRequest对象</p>
+</li>
+<li><p>准备Request.source()，也就是DSL。</p>
+<p>① QueryBuilders来构建查询条件</p>
+<p>② 传入Request.source() 的 query() 方法</p>
+</li>
+<li><p>发送请求，得到结果</p>
+</li>
+<li><p>解析结果（参考JSON结果，从外到内，逐层解析）</p>
+</li>
+</ol>
+<h2 id="3-2-match查询"><a href="#3-2-match查询" class="headerlink" title="3.2.match查询"></a>3.2.match查询</h2><p>全文检索的match和multi_match查询与match_all的API基本一致。差别是查询条件，也就是query的部分。</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721215923060.png" srcset="/img/loading.gif" lazyload alt="image-20210721215923060"> </p>
+<p>因此，Java代码上的差异主要是request.source().query()中的参数了。同样是利用QueryBuilders提供的方法：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721215843099.png" srcset="/img/loading.gif" lazyload alt="image-20210721215843099"> </p>
+<p>而结果解析代码则完全一致，可以抽取并共享。</p>
+<p>完整代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Test</span><br><span class="hljs-keyword">void</span> <span class="hljs-title function_">testMatch</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> IOException &#123;<br>    <span class="hljs-comment">// 1.准备Request</span><br>    <span class="hljs-type">SearchRequest</span> <span class="hljs-variable">request</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SearchRequest</span>(<span class="hljs-string">&quot;hotel&quot;</span>);<br>    <span class="hljs-comment">// 2.准备DSL</span><br>    request.source()<br>        .query(QueryBuilders.matchQuery(<span class="hljs-string">&quot;all&quot;</span>, <span class="hljs-string">&quot;如家&quot;</span>));<br>    <span class="hljs-comment">// 3.发送请求</span><br>    <span class="hljs-type">SearchResponse</span> <span class="hljs-variable">response</span> <span class="hljs-operator">=</span> client.search(request, RequestOptions.DEFAULT);<br>    <span class="hljs-comment">// 4.解析响应</span><br>    handleResponse(response);<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="3-3-精确查询"><a href="#3-3-精确查询" class="headerlink" title="3.3.精确查询"></a>3.3.精确查询</h2><p>精确查询主要是两者：</p>
+<ul>
+<li>term：词条精确匹配</li>
+<li>range：范围查询</li>
+</ul>
+<p>与之前的查询相比，差异同样在查询条件，其它都一样。</p>
+<p>查询条件构造的API如下：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721220305140.png" srcset="/img/loading.gif" lazyload alt="image-20210721220305140"> </p>
+<h2 id="3-4-布尔查询"><a href="#3-4-布尔查询" class="headerlink" title="3.4.布尔查询"></a>3.4.布尔查询</h2><p>布尔查询是用must、must_not、filter等方式组合其它查询，代码示例如下：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721220927286.png" srcset="/img/loading.gif" lazyload alt="image-20210721220927286"></p>
+<p>可以看到，API与其它查询的差别同样是在查询条件的构建，QueryBuilders，结果解析等其他代码完全不变。</p>
+<p>完整代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Test</span><br><span class="hljs-keyword">void</span> <span class="hljs-title function_">testBool</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> IOException &#123;<br>    <span class="hljs-comment">// 1.准备Request</span><br>    <span class="hljs-type">SearchRequest</span> <span class="hljs-variable">request</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SearchRequest</span>(<span class="hljs-string">&quot;hotel&quot;</span>);<br>    <span class="hljs-comment">// 2.准备DSL</span><br>    <span class="hljs-comment">// 2.1.准备BooleanQuery</span><br>    <span class="hljs-type">BoolQueryBuilder</span> <span class="hljs-variable">boolQuery</span> <span class="hljs-operator">=</span> QueryBuilders.boolQuery();<br>    <span class="hljs-comment">// 2.2.添加term</span><br>    boolQuery.must(QueryBuilders.termQuery(<span class="hljs-string">&quot;city&quot;</span>, <span class="hljs-string">&quot;杭州&quot;</span>));<br>    <span class="hljs-comment">// 2.3.添加range</span><br>    boolQuery.filter(QueryBuilders.rangeQuery(<span class="hljs-string">&quot;price&quot;</span>).lte(<span class="hljs-number">250</span>));<br><br>    request.source().query(boolQuery);<br>    <span class="hljs-comment">// 3.发送请求</span><br>    <span class="hljs-type">SearchResponse</span> <span class="hljs-variable">response</span> <span class="hljs-operator">=</span> client.search(request, RequestOptions.DEFAULT);<br>    <span class="hljs-comment">// 4.解析响应</span><br>    handleResponse(response);<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-5-排序、分页"><a href="#3-5-排序、分页" class="headerlink" title="3.5.排序、分页"></a>3.5.排序、分页</h2><p>搜索结果的排序和分页是与query同级的参数，因此同样是使用request.source()来设置。</p>
+<p>对应的API如下：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721221121266.png" srcset="/img/loading.gif" lazyload alt="image-20210721221121266"></p>
+<p>完整代码示例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Test</span><br><span class="hljs-keyword">void</span> <span class="hljs-title function_">testPageAndSort</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> IOException &#123;<br>    <span class="hljs-comment">// 页码，每页大小</span><br>    <span class="hljs-type">int</span> <span class="hljs-variable">page</span> <span class="hljs-operator">=</span> <span class="hljs-number">1</span>, size = <span class="hljs-number">5</span>;<br><br>    <span class="hljs-comment">// 1.准备Request</span><br>    <span class="hljs-type">SearchRequest</span> <span class="hljs-variable">request</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SearchRequest</span>(<span class="hljs-string">&quot;hotel&quot;</span>);<br>    <span class="hljs-comment">// 2.准备DSL</span><br>    <span class="hljs-comment">// 2.1.query</span><br>    request.source().query(QueryBuilders.matchAllQuery());<br>    <span class="hljs-comment">// 2.2.排序 sort</span><br>    request.source().sort(<span class="hljs-string">&quot;price&quot;</span>, SortOrder.ASC);<br>    <span class="hljs-comment">// 2.3.分页 from、size</span><br>    request.source().from((page - <span class="hljs-number">1</span>) * size).size(<span class="hljs-number">5</span>);<br>    <span class="hljs-comment">// 3.发送请求</span><br>    <span class="hljs-type">SearchResponse</span> <span class="hljs-variable">response</span> <span class="hljs-operator">=</span> client.search(request, RequestOptions.DEFAULT);<br>    <span class="hljs-comment">// 4.解析响应</span><br>    handleResponse(response);<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-6-高亮"><a href="#3-6-高亮" class="headerlink" title="3.6.高亮"></a>3.6.高亮</h2><p>高亮的代码与之前代码差异较大，有两点：</p>
+<ul>
+<li>查询的DSL：其中除了查询条件，还需要添加高亮条件，同样是与query同级。</li>
+<li>结果解析：结果除了要解析_source文档数据，还要解析高亮结果</li>
+</ul>
+<h3 id="3-6-1-高亮请求构建"><a href="#3-6-1-高亮请求构建" class="headerlink" title="3.6.1.高亮请求构建"></a>3.6.1.高亮请求构建</h3><p>高亮请求的构建API如下：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721221744883.png" srcset="/img/loading.gif" lazyload alt="image-20210721221744883"></p>
+<p>上述代码省略了查询条件部分，但是大家不要忘了：高亮查询必须使用全文检索查询，并且要有搜索关键字，将来才可以对关键字高亮。</p>
+<p>完整代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Test</span><br><span class="hljs-keyword">void</span> <span class="hljs-title function_">testHighlight</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> IOException &#123;<br>    <span class="hljs-comment">// 1.准备Request</span><br>    <span class="hljs-type">SearchRequest</span> <span class="hljs-variable">request</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SearchRequest</span>(<span class="hljs-string">&quot;hotel&quot;</span>);<br>    <span class="hljs-comment">// 2.准备DSL</span><br>    <span class="hljs-comment">// 2.1.query</span><br>    request.source().query(QueryBuilders.matchQuery(<span class="hljs-string">&quot;all&quot;</span>, <span class="hljs-string">&quot;如家&quot;</span>));<br>    <span class="hljs-comment">// 2.2.高亮</span><br>    request.source().highlighter(<span class="hljs-keyword">new</span> <span class="hljs-title class_">HighlightBuilder</span>().field(<span class="hljs-string">&quot;name&quot;</span>).requireFieldMatch(<span class="hljs-literal">false</span>));<br>    <span class="hljs-comment">// 3.发送请求</span><br>    <span class="hljs-type">SearchResponse</span> <span class="hljs-variable">response</span> <span class="hljs-operator">=</span> client.search(request, RequestOptions.DEFAULT);<br>    <span class="hljs-comment">// 4.解析响应</span><br>    handleResponse(response);<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="3-6-2-高亮结果解析"><a href="#3-6-2-高亮结果解析" class="headerlink" title="3.6.2.高亮结果解析"></a>3.6.2.高亮结果解析</h3><p>高亮的结果与查询的文档结果默认是分离的，并不在一起。</p>
+<p>因此解析高亮的代码需要额外处理：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721222057212.png" srcset="/img/loading.gif" lazyload alt="image-20210721222057212"></p>
+<p>代码解读：</p>
+<ul>
+<li>第一步：从结果中获取source。hit.getSourceAsString()，这部分是非高亮结果，json字符串。还需要反序列为HotelDoc对象</li>
+<li>第二步：获取高亮结果。hit.getHighlightFields()，返回值是一个Map，key是高亮字段名称，值是HighlightField对象，代表高亮值</li>
+<li>第三步：从map中根据高亮字段名称，获取高亮字段值对象HighlightField</li>
+<li>第四步：从HighlightField中获取Fragments，并且转为字符串。这部分就是真正的高亮字符串了</li>
+<li>第五步：用高亮的结果替换HotelDoc中的非高亮结果</li>
+</ul>
+<p>完整代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">handleResponse</span><span class="hljs-params">(SearchResponse response)</span> &#123;<br>    <span class="hljs-comment">// 4.解析响应</span><br>    <span class="hljs-type">SearchHits</span> <span class="hljs-variable">searchHits</span> <span class="hljs-operator">=</span> response.getHits();<br>    <span class="hljs-comment">// 4.1.获取总条数</span><br>    <span class="hljs-type">long</span> <span class="hljs-variable">total</span> <span class="hljs-operator">=</span> searchHits.getTotalHits().value;<br>    System.out.println(<span class="hljs-string">&quot;共搜索到&quot;</span> + total + <span class="hljs-string">&quot;条数据&quot;</span>);<br>    <span class="hljs-comment">// 4.2.文档数组</span><br>    SearchHit[] hits = searchHits.getHits();<br>    <span class="hljs-comment">// 4.3.遍历</span><br>    <span class="hljs-keyword">for</span> (SearchHit hit : hits) &#123;<br>        <span class="hljs-comment">// 获取文档source</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">json</span> <span class="hljs-operator">=</span> hit.getSourceAsString();<br>        <span class="hljs-comment">// 反序列化</span><br>        <span class="hljs-type">HotelDoc</span> <span class="hljs-variable">hotelDoc</span> <span class="hljs-operator">=</span> JSON.parseObject(json, HotelDoc.class);<br>        <span class="hljs-comment">// 获取高亮结果</span><br>        Map&lt;String, HighlightField&gt; highlightFields = hit.getHighlightFields();<br>        <span class="hljs-keyword">if</span> (!CollectionUtils.isEmpty(highlightFields)) &#123;<br>            <span class="hljs-comment">// 根据字段名获取高亮结果</span><br>            <span class="hljs-type">HighlightField</span> <span class="hljs-variable">highlightField</span> <span class="hljs-operator">=</span> highlightFields.get(<span class="hljs-string">&quot;name&quot;</span>);<br>            <span class="hljs-keyword">if</span> (highlightField != <span class="hljs-literal">null</span>) &#123;<br>                <span class="hljs-comment">// 获取高亮值</span><br>                <span class="hljs-type">String</span> <span class="hljs-variable">name</span> <span class="hljs-operator">=</span> highlightField.getFragments()[<span class="hljs-number">0</span>].string();<br>                <span class="hljs-comment">// 覆盖非高亮结果</span><br>                hotelDoc.setName(name);<br>            &#125;<br>        &#125;<br>        System.out.println(<span class="hljs-string">&quot;hotelDoc = &quot;</span> + hotelDoc);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+<h1 id="4-黑马旅游案例"><a href="#4-黑马旅游案例" class="headerlink" title="4.黑马旅游案例"></a>4.黑马旅游案例</h1><p>下面，我们通过黑马旅游的案例来实战演练下之前学习的知识。</p>
+<p>我们实现四部分功能：</p>
+<ul>
+<li>酒店搜索和分页</li>
+<li>酒店结果过滤</li>
+<li>我周边的酒店</li>
+<li>酒店竞价排名</li>
+</ul>
+<p>启动我们提供的hotel-demo项目，其默认端口是8089，访问<a href="http://localhost:8090，就能看到项目页面了：">http://localhost:8090，就能看到项目页面了：</a></p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721223159598.png" srcset="/img/loading.gif" lazyload alt="image-20210721223159598"></p>
+<h2 id="4-1-酒店搜索和分页"><a href="#4-1-酒店搜索和分页" class="headerlink" title="4.1.酒店搜索和分页"></a>4.1.酒店搜索和分页</h2><p>案例需求：实现黑马旅游的酒店搜索功能，完成关键字搜索和分页</p>
+<h3 id="4-1-1-需求分析"><a href="#4-1-1-需求分析" class="headerlink" title="4.1.1.需求分析"></a>4.1.1.需求分析</h3><p>在项目的首页，有一个大大的搜索框，还有分页按钮：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721223859419.png" srcset="/img/loading.gif" lazyload alt="image-20210721223859419"></p>
+<p>点击搜索按钮，可以看到浏览器控制台发出了请求：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721224033789.png" srcset="/img/loading.gif" lazyload alt="image-20210721224033789"></p>
+<p>请求参数如下：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721224112708.png" srcset="/img/loading.gif" lazyload alt="image-20210721224112708"></p>
+<p>由此可以知道，我们这个请求的信息如下：</p>
+<ul>
+<li>请求方式：POST</li>
+<li>请求路径：&#x2F;hotel&#x2F;list</li>
+<li>请求参数：JSON对象，包含4个字段：<ul>
+<li>key：搜索关键字</li>
+<li>page：页码</li>
+<li>size：每页大小</li>
+<li>sortBy：排序，目前暂不实现</li>
+</ul>
+</li>
+<li>返回值：分页查询，需要返回分页结果PageResult，包含两个属性：<ul>
+<li><code>total</code>：总条数</li>
+<li><code>List&lt;HotelDoc&gt;</code>：当前页的数据</li>
+</ul>
+</li>
+</ul>
+<p>因此，我们实现业务的流程如下：</p>
+<ul>
+<li>步骤一：定义实体类，接收请求参数的JSON对象</li>
+<li>步骤二：编写controller，接收页面的请求</li>
+<li>步骤三：编写业务实现，利用RestHighLevelClient实现搜索、分页</li>
+</ul>
+<h3 id="4-1-2-定义实体类"><a href="#4-1-2-定义实体类" class="headerlink" title="4.1.2.定义实体类"></a>4.1.2.定义实体类</h3><p>实体类有两个，一个是前端的请求参数实体，一个是服务端应该返回的响应结果实体。</p>
+<p>1）请求参数</p>
+<p>前端请求的json结构如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;key&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;搜索关键字&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;page&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;size&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">3</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;sortBy&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;default&quot;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p>因此，我们在<code>cn.itcast.hotel.pojo</code>包下定义一个实体类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> cn.itcast.hotel.pojo;<br><br><span class="hljs-keyword">import</span> lombok.Data;<br><br><span class="hljs-meta">@Data</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">RequestParams</span> &#123;<br>    <span class="hljs-keyword">private</span> String key;<br>    <span class="hljs-keyword">private</span> Integer page;<br>    <span class="hljs-keyword">private</span> Integer size;<br>    <span class="hljs-keyword">private</span> String sortBy;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<p>2）返回值</p>
+<p>分页查询，需要返回分页结果PageResult，包含两个属性：</p>
+<ul>
+<li><code>total</code>：总条数</li>
+<li><code>List&lt;HotelDoc&gt;</code>：当前页的数据</li>
+</ul>
+<p>因此，我们在<code>cn.itcast.hotel.pojo</code>中定义返回结果：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> cn.itcast.hotel.pojo;<br><br><span class="hljs-keyword">import</span> lombok.Data;<br><br><span class="hljs-keyword">import</span> java.util.List;<br><br><span class="hljs-meta">@Data</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">PageResult</span> &#123;<br>    <span class="hljs-keyword">private</span> Long total;<br>    <span class="hljs-keyword">private</span> List&lt;HotelDoc&gt; hotels;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">PageResult</span><span class="hljs-params">()</span> &#123;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">PageResult</span><span class="hljs-params">(Long total, List&lt;HotelDoc&gt; hotels)</span> &#123;<br>        <span class="hljs-built_in">this</span>.total = total;<br>        <span class="hljs-built_in">this</span>.hotels = hotels;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="4-1-3-定义controller"><a href="#4-1-3-定义controller" class="headerlink" title="4.1.3.定义controller"></a>4.1.3.定义controller</h3><p>定义一个HotelController，声明查询接口，满足下列要求：</p>
+<ul>
+<li>请求方式：Post</li>
+<li>请求路径：&#x2F;hotel&#x2F;list</li>
+<li>请求参数：对象，类型为RequestParam</li>
+<li>返回值：PageResult，包含两个属性<ul>
+<li><code>Long total</code>：总条数</li>
+<li><code>List&lt;HotelDoc&gt; hotels</code>：酒店数据</li>
+</ul>
+</li>
+</ul>
+<p>因此，我们在<code>cn.itcast.hotel.web</code>中定义HotelController：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span><br><span class="hljs-meta">@RequestMapping(&quot;/hotel&quot;)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">HotelController</span> &#123;<br><br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> IHotelService hotelService;<br>	<span class="hljs-comment">// 搜索酒店数据</span><br>    <span class="hljs-meta">@PostMapping(&quot;/list&quot;)</span><br>    <span class="hljs-keyword">public</span> PageResult <span class="hljs-title function_">search</span><span class="hljs-params">(<span class="hljs-meta">@RequestBody</span> RequestParams params)</span>&#123;<br>        <span class="hljs-keyword">return</span> hotelService.search(params);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="4-1-4-实现搜索业务"><a href="#4-1-4-实现搜索业务" class="headerlink" title="4.1.4.实现搜索业务"></a>4.1.4.实现搜索业务</h3><p>我们在controller调用了IHotelService，并没有实现该方法，因此下面我们就在IHotelService中定义方法，并且去实现业务逻辑。</p>
+<p>1）在<code>cn.itcast.hotel.service</code>中的<code>IHotelService</code>接口中定义一个方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 根据关键字搜索酒店信息</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@param</span> params 请求参数对象，包含用户输入的关键字 </span><br><span class="hljs-comment"> * <span class="hljs-doctag">@return</span> 酒店文档列表</span><br><span class="hljs-comment"> */</span><br>PageResult <span class="hljs-title function_">search</span><span class="hljs-params">(RequestParams params)</span>;<br></code></pre></td></tr></table></figure>
+
+
+
+<p>2）实现搜索业务，肯定离不开RestHighLevelClient，我们需要把它注册到Spring中作为一个Bean。在<code>cn.itcast.hotel</code>中的<code>HotelDemoApplication</code>中声明这个Bean：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Bean</span><br><span class="hljs-keyword">public</span> RestHighLevelClient <span class="hljs-title function_">client</span><span class="hljs-params">()</span>&#123;<br>    <span class="hljs-keyword">return</span>  <span class="hljs-keyword">new</span> <span class="hljs-title class_">RestHighLevelClient</span>(RestClient.builder(<br>        HttpHost.create(<span class="hljs-string">&quot;http://192.168.150.101:9200&quot;</span>)<br>    ));<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+<p>3）在<code>cn.itcast.hotel.service.impl</code>中的<code>HotelService</code>中实现search方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> PageResult <span class="hljs-title function_">search</span><span class="hljs-params">(RequestParams params)</span> &#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">// 1.准备Request</span><br>        <span class="hljs-type">SearchRequest</span> <span class="hljs-variable">request</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SearchRequest</span>(<span class="hljs-string">&quot;hotel&quot;</span>);<br>        <span class="hljs-comment">// 2.准备DSL</span><br>        <span class="hljs-comment">// 2.1.query</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">key</span> <span class="hljs-operator">=</span> params.getKey();<br>        <span class="hljs-keyword">if</span> (key == <span class="hljs-literal">null</span> || <span class="hljs-string">&quot;&quot;</span>.equals(key)) &#123;<br>            boolQuery.must(QueryBuilders.matchAllQuery());<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            boolQuery.must(QueryBuilders.matchQuery(<span class="hljs-string">&quot;all&quot;</span>, key));<br>        &#125;<br><br>        <span class="hljs-comment">// 2.2.分页</span><br>        <span class="hljs-type">int</span> <span class="hljs-variable">page</span> <span class="hljs-operator">=</span> params.getPage();<br>        <span class="hljs-type">int</span> <span class="hljs-variable">size</span> <span class="hljs-operator">=</span> params.getSize();<br>        request.source().from((page - <span class="hljs-number">1</span>) * size).size(size);<br><br>        <span class="hljs-comment">// 3.发送请求</span><br>        <span class="hljs-type">SearchResponse</span> <span class="hljs-variable">response</span> <span class="hljs-operator">=</span> client.search(request, RequestOptions.DEFAULT);<br>        <span class="hljs-comment">// 4.解析响应</span><br>        <span class="hljs-keyword">return</span> handleResponse(response);<br>    &#125; <span class="hljs-keyword">catch</span> (IOException e) &#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(e);<br>    &#125;<br>&#125;<br><br><span class="hljs-comment">// 结果解析</span><br><span class="hljs-keyword">private</span> PageResult <span class="hljs-title function_">handleResponse</span><span class="hljs-params">(SearchResponse response)</span> &#123;<br>    <span class="hljs-comment">// 4.解析响应</span><br>    <span class="hljs-type">SearchHits</span> <span class="hljs-variable">searchHits</span> <span class="hljs-operator">=</span> response.getHits();<br>    <span class="hljs-comment">// 4.1.获取总条数</span><br>    <span class="hljs-type">long</span> <span class="hljs-variable">total</span> <span class="hljs-operator">=</span> searchHits.getTotalHits().value;<br>    <span class="hljs-comment">// 4.2.文档数组</span><br>    SearchHit[] hits = searchHits.getHits();<br>    <span class="hljs-comment">// 4.3.遍历</span><br>    List&lt;HotelDoc&gt; hotels = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>    <span class="hljs-keyword">for</span> (SearchHit hit : hits) &#123;<br>        <span class="hljs-comment">// 获取文档source</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">json</span> <span class="hljs-operator">=</span> hit.getSourceAsString();<br>        <span class="hljs-comment">// 反序列化</span><br>        <span class="hljs-type">HotelDoc</span> <span class="hljs-variable">hotelDoc</span> <span class="hljs-operator">=</span> JSON.parseObject(json, HotelDoc.class);<br>		<span class="hljs-comment">// 放入集合</span><br>        hotels.add(hotelDoc);<br>    &#125;<br>    <span class="hljs-comment">// 4.4.封装返回</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">PageResult</span>(total, hotels);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="4-2-酒店结果过滤"><a href="#4-2-酒店结果过滤" class="headerlink" title="4.2.酒店结果过滤"></a>4.2.酒店结果过滤</h2><p>需求：添加品牌、城市、星级、价格等过滤功能</p>
+<h3 id="4-2-1-需求分析"><a href="#4-2-1-需求分析" class="headerlink" title="4.2.1.需求分析"></a>4.2.1.需求分析</h3><p>在页面搜索框下面，会有一些过滤项：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210722091940726.png" srcset="/img/loading.gif" lazyload alt="image-20210722091940726"></p>
+<p>传递的参数如图：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210722092051994.png" srcset="/img/loading.gif" lazyload alt="image-20210722092051994"> </p>
+<p>包含的过滤条件有：</p>
+<ul>
+<li>brand：品牌值</li>
+<li>city：城市</li>
+<li>minPrice~maxPrice：价格范围</li>
+<li>starName：星级</li>
+</ul>
+<p>我们需要做两件事情：</p>
+<ul>
+<li>修改请求参数的对象RequestParams，接收上述参数</li>
+<li>修改业务逻辑，在搜索条件之外，添加一些过滤条件</li>
+</ul>
+<h3 id="4-2-2-修改实体类"><a href="#4-2-2-修改实体类" class="headerlink" title="4.2.2.修改实体类"></a>4.2.2.修改实体类</h3><p>修改在<code>cn.itcast.hotel.pojo</code>包下的实体类RequestParams：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Data</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">RequestParams</span> &#123;<br>    <span class="hljs-keyword">private</span> String key;<br>    <span class="hljs-keyword">private</span> Integer page;<br>    <span class="hljs-keyword">private</span> Integer size;<br>    <span class="hljs-keyword">private</span> String sortBy;<br>    <span class="hljs-comment">// 下面是新增的过滤条件参数</span><br>    <span class="hljs-keyword">private</span> String city;<br>    <span class="hljs-keyword">private</span> String brand;<br>    <span class="hljs-keyword">private</span> String starName;<br>    <span class="hljs-keyword">private</span> Integer minPrice;<br>    <span class="hljs-keyword">private</span> Integer maxPrice;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="4-2-3-修改搜索业务"><a href="#4-2-3-修改搜索业务" class="headerlink" title="4.2.3.修改搜索业务"></a>4.2.3.修改搜索业务</h3><p>在HotelService的search方法中，只有一个地方需要修改：requet.source().query( … )其中的查询条件。</p>
+<p>在之前的业务中，只有match查询，根据关键字搜索，现在要添加条件过滤，包括：</p>
+<ul>
+<li>品牌过滤：是keyword类型，用term查询</li>
+<li>星级过滤：是keyword类型，用term查询</li>
+<li>价格过滤：是数值类型，用range查询</li>
+<li>城市过滤：是keyword类型，用term查询</li>
+</ul>
+<p>多个查询条件组合，肯定是boolean查询来组合：</p>
+<ul>
+<li>关键字搜索放到must中，参与算分</li>
+<li>其它过滤条件放到filter中，不参与算分</li>
+</ul>
+<p>因为条件构建的逻辑比较复杂，这里先封装为一个函数：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210722092935453.png" srcset="/img/loading.gif" lazyload alt="image-20210722092935453"></p>
+<p>buildBasicQuery的代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">buildBasicQuery</span><span class="hljs-params">(RequestParams params, SearchRequest request)</span> &#123;<br>    <span class="hljs-comment">// 1.构建BooleanQuery</span><br>    <span class="hljs-type">BoolQueryBuilder</span> <span class="hljs-variable">boolQuery</span> <span class="hljs-operator">=</span> QueryBuilders.boolQuery();<br>    <span class="hljs-comment">// 2.关键字搜索</span><br>    <span class="hljs-type">String</span> <span class="hljs-variable">key</span> <span class="hljs-operator">=</span> params.getKey();<br>    <span class="hljs-keyword">if</span> (key == <span class="hljs-literal">null</span> || <span class="hljs-string">&quot;&quot;</span>.equals(key)) &#123;<br>        boolQuery.must(QueryBuilders.matchAllQuery());<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        boolQuery.must(QueryBuilders.matchQuery(<span class="hljs-string">&quot;all&quot;</span>, key));<br>    &#125;<br>    <span class="hljs-comment">// 3.城市条件</span><br>    <span class="hljs-keyword">if</span> (params.getCity() != <span class="hljs-literal">null</span> &amp;&amp; !params.getCity().equals(<span class="hljs-string">&quot;&quot;</span>)) &#123;<br>        boolQuery.filter(QueryBuilders.termQuery(<span class="hljs-string">&quot;city&quot;</span>, params.getCity()));<br>    &#125;<br>    <span class="hljs-comment">// 4.品牌条件</span><br>    <span class="hljs-keyword">if</span> (params.getBrand() != <span class="hljs-literal">null</span> &amp;&amp; !params.getBrand().equals(<span class="hljs-string">&quot;&quot;</span>)) &#123;<br>        boolQuery.filter(QueryBuilders.termQuery(<span class="hljs-string">&quot;brand&quot;</span>, params.getBrand()));<br>    &#125;<br>    <span class="hljs-comment">// 5.星级条件</span><br>    <span class="hljs-keyword">if</span> (params.getStarName() != <span class="hljs-literal">null</span> &amp;&amp; !params.getStarName().equals(<span class="hljs-string">&quot;&quot;</span>)) &#123;<br>        boolQuery.filter(QueryBuilders.termQuery(<span class="hljs-string">&quot;starName&quot;</span>, params.getStarName()));<br>    &#125;<br>	<span class="hljs-comment">// 6.价格</span><br>    <span class="hljs-keyword">if</span> (params.getMinPrice() != <span class="hljs-literal">null</span> &amp;&amp; params.getMaxPrice() != <span class="hljs-literal">null</span>) &#123;<br>        boolQuery.filter(QueryBuilders<br>                         .rangeQuery(<span class="hljs-string">&quot;price&quot;</span>)<br>                         .gte(params.getMinPrice())<br>                         .lte(params.getMaxPrice())<br>                        );<br>    &#125;<br>	<span class="hljs-comment">// 7.放入source</span><br>    request.source().query(boolQuery);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="4-3-我周边的酒店"><a href="#4-3-我周边的酒店" class="headerlink" title="4.3.我周边的酒店"></a>4.3.我周边的酒店</h2><p>需求：我附近的酒店</p>
+<h3 id="4-3-1-需求分析"><a href="#4-3-1-需求分析" class="headerlink" title="4.3.1.需求分析"></a>4.3.1.需求分析</h3><p>在酒店列表页的右侧，有一个小地图，点击地图的定位按钮，地图会找到你所在的位置：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210722093414542.png" srcset="/img/loading.gif" lazyload alt="image-20210722093414542"> </p>
+<p>并且，在前端会发起查询请求，将你的坐标发送到服务端：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210722093642382.png" srcset="/img/loading.gif" lazyload alt="image-20210722093642382"> </p>
+<p>我们要做的事情就是基于这个location坐标，然后按照距离对周围酒店排序。实现思路如下：</p>
+<ul>
+<li>修改RequestParams参数，接收location字段</li>
+<li>修改search方法业务逻辑，如果location有值，添加根据geo_distance排序的功能</li>
+</ul>
+<h3 id="4-3-2-修改实体类"><a href="#4-3-2-修改实体类" class="headerlink" title="4.3.2.修改实体类"></a>4.3.2.修改实体类</h3><p>修改在<code>cn.itcast.hotel.pojo</code>包下的实体类RequestParams：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> cn.itcast.hotel.pojo;<br><br><span class="hljs-keyword">import</span> lombok.Data;<br><br><span class="hljs-meta">@Data</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">RequestParams</span> &#123;<br>    <span class="hljs-keyword">private</span> String key;<br>    <span class="hljs-keyword">private</span> Integer page;<br>    <span class="hljs-keyword">private</span> Integer size;<br>    <span class="hljs-keyword">private</span> String sortBy;<br>    <span class="hljs-keyword">private</span> String city;<br>    <span class="hljs-keyword">private</span> String brand;<br>    <span class="hljs-keyword">private</span> String starName;<br>    <span class="hljs-keyword">private</span> Integer minPrice;<br>    <span class="hljs-keyword">private</span> Integer maxPrice;<br>    <span class="hljs-comment">// 我当前的地理坐标</span><br>    <span class="hljs-keyword">private</span> String location;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="4-3-3-距离排序API"><a href="#4-3-3-距离排序API" class="headerlink" title="4.3.3.距离排序API"></a>4.3.3.距离排序API</h3><p>我们以前学习过排序功能，包括两种：</p>
+<ul>
+<li>普通字段排序</li>
+<li>地理坐标排序</li>
+</ul>
+<p>我们只讲了普通字段排序对应的java写法。地理坐标排序只学过DSL语法，如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs json">GET /indexName/_search<br><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;query&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;match_all&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;sort&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>    <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;price&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;asc&quot;</span>  <br>    <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;_geo_distance&quot;</span> <span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>          <span class="hljs-attr">&quot;FIELD&quot;</span> <span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;纬度，经度&quot;</span><span class="hljs-punctuation">,</span><br>          <span class="hljs-attr">&quot;order&quot;</span> <span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;asc&quot;</span><span class="hljs-punctuation">,</span><br>          <span class="hljs-attr">&quot;unit&quot;</span> <span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;km&quot;</span><br>      <span class="hljs-punctuation">&#125;</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">]</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p>对应的java代码示例：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210722095227059.png" srcset="/img/loading.gif" lazyload alt="image-20210722095227059"></p>
+<h3 id="4-3-4-添加距离排序"><a href="#4-3-4-添加距离排序" class="headerlink" title="4.3.4.添加距离排序"></a>4.3.4.添加距离排序</h3><p>在<code>cn.itcast.hotel.service.impl</code>的<code>HotelService</code>的<code>search</code>方法中，添加一个排序功能：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210722095902314.png" srcset="/img/loading.gif" lazyload alt="image-20210722095902314"></p>
+<p>完整代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> PageResult <span class="hljs-title function_">search</span><span class="hljs-params">(RequestParams params)</span> &#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">// 1.准备Request</span><br>        <span class="hljs-type">SearchRequest</span> <span class="hljs-variable">request</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SearchRequest</span>(<span class="hljs-string">&quot;hotel&quot;</span>);<br>        <span class="hljs-comment">// 2.准备DSL</span><br>        <span class="hljs-comment">// 2.1.query</span><br>        buildBasicQuery(params, request);<br><br>        <span class="hljs-comment">// 2.2.分页</span><br>        <span class="hljs-type">int</span> <span class="hljs-variable">page</span> <span class="hljs-operator">=</span> params.getPage();<br>        <span class="hljs-type">int</span> <span class="hljs-variable">size</span> <span class="hljs-operator">=</span> params.getSize();<br>        request.source().from((page - <span class="hljs-number">1</span>) * size).size(size);<br><br>        <span class="hljs-comment">// 2.3.排序</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">location</span> <span class="hljs-operator">=</span> params.getLocation();<br>        <span class="hljs-keyword">if</span> (location != <span class="hljs-literal">null</span> &amp;&amp; !location.equals(<span class="hljs-string">&quot;&quot;</span>)) &#123;<br>            request.source().sort(SortBuilders<br>                                  .geoDistanceSort(<span class="hljs-string">&quot;location&quot;</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">GeoPoint</span>(location))<br>                                  .order(SortOrder.ASC)<br>                                  .unit(DistanceUnit.KILOMETERS)<br>                                 );<br>        &#125;<br><br>        <span class="hljs-comment">// 3.发送请求</span><br>        <span class="hljs-type">SearchResponse</span> <span class="hljs-variable">response</span> <span class="hljs-operator">=</span> client.search(request, RequestOptions.DEFAULT);<br>        <span class="hljs-comment">// 4.解析响应</span><br>        <span class="hljs-keyword">return</span> handleResponse(response);<br>    &#125; <span class="hljs-keyword">catch</span> (IOException e) &#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(e);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="4-3-5-排序距离显示"><a href="#4-3-5-排序距离显示" class="headerlink" title="4.3.5.排序距离显示"></a>4.3.5.排序距离显示</h3><p>重启服务后，测试我的酒店功能：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210722100040674.png" srcset="/img/loading.gif" lazyload alt="image-20210722100040674"></p>
+<p>发现确实可以实现对我附近酒店的排序，不过并没有看到酒店到底距离我多远，这该怎么办？</p>
+<p>排序完成后，页面还要获取我附近每个酒店的具体<strong>距离</strong>值，这个值在响应结果中是独立的：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210722095648542.png" srcset="/img/loading.gif" lazyload alt="image-20210722095648542"></p>
+<p>因此，我们在结果解析阶段，除了解析source部分以外，还要得到sort部分，也就是排序的距离，然后放到响应结果中。</p>
+<p>我们要做两件事：</p>
+<ul>
+<li>修改HotelDoc，添加排序距离字段，用于页面显示</li>
+<li>修改HotelService类中的handleResponse方法，添加对sort值的获取</li>
+</ul>
+<p>1）修改HotelDoc类，添加距离字段</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> cn.itcast.hotel.pojo;<br><br><span class="hljs-keyword">import</span> lombok.Data;<br><span class="hljs-keyword">import</span> lombok.NoArgsConstructor;<br><br><br><span class="hljs-meta">@Data</span><br><span class="hljs-meta">@NoArgsConstructor</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">HotelDoc</span> &#123;<br>    <span class="hljs-keyword">private</span> Long id;<br>    <span class="hljs-keyword">private</span> String name;<br>    <span class="hljs-keyword">private</span> String address;<br>    <span class="hljs-keyword">private</span> Integer price;<br>    <span class="hljs-keyword">private</span> Integer score;<br>    <span class="hljs-keyword">private</span> String brand;<br>    <span class="hljs-keyword">private</span> String city;<br>    <span class="hljs-keyword">private</span> String starName;<br>    <span class="hljs-keyword">private</span> String business;<br>    <span class="hljs-keyword">private</span> String location;<br>    <span class="hljs-keyword">private</span> String pic;<br>    <span class="hljs-comment">// 排序时的 距离值</span><br>    <span class="hljs-keyword">private</span> Object distance;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">HotelDoc</span><span class="hljs-params">(Hotel hotel)</span> &#123;<br>        <span class="hljs-built_in">this</span>.id = hotel.getId();<br>        <span class="hljs-built_in">this</span>.name = hotel.getName();<br>        <span class="hljs-built_in">this</span>.address = hotel.getAddress();<br>        <span class="hljs-built_in">this</span>.price = hotel.getPrice();<br>        <span class="hljs-built_in">this</span>.score = hotel.getScore();<br>        <span class="hljs-built_in">this</span>.brand = hotel.getBrand();<br>        <span class="hljs-built_in">this</span>.city = hotel.getCity();<br>        <span class="hljs-built_in">this</span>.starName = hotel.getStarName();<br>        <span class="hljs-built_in">this</span>.business = hotel.getBusiness();<br>        <span class="hljs-built_in">this</span>.location = hotel.getLatitude() + <span class="hljs-string">&quot;, &quot;</span> + hotel.getLongitude();<br>        <span class="hljs-built_in">this</span>.pic = hotel.getPic();<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+
+
+<p>2）修改HotelService中的handleResponse方法</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210722100613966.png" srcset="/img/loading.gif" lazyload alt="image-20210722100613966"></p>
+<p>重启后测试，发现页面能成功显示距离了：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210722100838604.png" srcset="/img/loading.gif" lazyload alt="image-20210722100838604"></p>
+<h2 id="4-4-酒店竞价排名"><a href="#4-4-酒店竞价排名" class="headerlink" title="4.4.酒店竞价排名"></a>4.4.酒店竞价排名</h2><p>需求：让指定的酒店在搜索结果中排名置顶</p>
+<h3 id="4-4-1-需求分析"><a href="#4-4-1-需求分析" class="headerlink" title="4.4.1.需求分析"></a>4.4.1.需求分析</h3><p>要让指定酒店在搜索结果中排名置顶，效果如图：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210722100947292.png" srcset="/img/loading.gif" lazyload alt="image-20210722100947292"></p>
+<p>页面会给指定的酒店添加<strong>广告</strong>标记。</p>
+<p>那怎样才能让指定的酒店排名置顶呢？</p>
+<p>我们之前学习过的function_score查询可以影响算分，算分高了，自然排名也就高了。而function_score包含3个要素：</p>
+<ul>
+<li>过滤条件：哪些文档要加分</li>
+<li>算分函数：如何计算function score</li>
+<li>加权方式：function score 与 query score如何运算</li>
+</ul>
+<p>这里的需求是：让<strong>指定酒店</strong>排名靠前。因此我们需要给这些酒店添加一个标记，这样在过滤条件中就可以<strong>根据这个标记来判断，是否要提高算分</strong>。</p>
+<p>比如，我们给酒店添加一个字段：isAD，Boolean类型：</p>
+<ul>
+<li>true：是广告</li>
+<li>false：不是广告</li>
+</ul>
+<p>这样function_score包含3个要素就很好确定了：</p>
+<ul>
+<li>过滤条件：判断isAD 是否为true</li>
+<li>算分函数：我们可以用最简单暴力的weight，固定加权值</li>
+<li>加权方式：可以用默认的相乘，大大提高算分</li>
+</ul>
+<p>因此，业务的实现步骤包括：</p>
+<ol>
+<li><p>给HotelDoc类添加isAD字段，Boolean类型</p>
+</li>
+<li><p>挑选几个你喜欢的酒店，给它的文档数据添加isAD字段，值为true</p>
+</li>
+<li><p>修改search方法，添加function score功能，给isAD值为true的酒店增加权重</p>
+</li>
+</ol>
+<h3 id="4-4-2-修改HotelDoc实体"><a href="#4-4-2-修改HotelDoc实体" class="headerlink" title="4.4.2.修改HotelDoc实体"></a>4.4.2.修改HotelDoc实体</h3><p>给<code>cn.itcast.hotel.pojo</code>包下的HotelDoc类添加isAD字段：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210722101908062.png" srcset="/img/loading.gif" lazyload alt="image-20210722101908062"></p>
+<h3 id="4-4-3-添加广告标记"><a href="#4-4-3-添加广告标记" class="headerlink" title="4.4.3.添加广告标记"></a>4.4.3.添加广告标记</h3><p>接下来，我们挑几个酒店，添加isAD字段，设置为true：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs json">POST /hotel/_update/<span class="hljs-number">1902197537</span><br><span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;doc&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">&quot;isAD&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><br>    <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br>POST /hotel/_update/<span class="hljs-number">2056126831</span><br><span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;doc&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">&quot;isAD&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><br>    <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br>POST /hotel/_update/<span class="hljs-number">1989806195</span><br><span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;doc&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">&quot;isAD&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><br>    <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br>POST /hotel/_update/<span class="hljs-number">2056105938</span><br><span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;doc&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">&quot;isAD&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><br>    <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="4-4-4-添加算分函数查询"><a href="#4-4-4-添加算分函数查询" class="headerlink" title="4.4.4.添加算分函数查询"></a>4.4.4.添加算分函数查询</h3><p>接下来我们就要修改查询条件了。之前是用的boolean 查询，现在要改成function_socre查询。</p>
+<p>function_score查询结构如下：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210721191544750.png" srcset="/img/loading.gif" lazyload alt="image-20210721191544750"></p>
+<p>对应的JavaAPI如下：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/image-20210722102850818.png" srcset="/img/loading.gif" lazyload alt="image-20210722102850818"></p>
+<p>我们可以将之前写的boolean查询作为<strong>原始查询</strong>条件放到query中，接下来就是添加<strong>过滤条件</strong>、<strong>算分函数</strong>、<strong>加权模式</strong>了。所以原来的代码依然可以沿用。</p>
+<p>修改<code>cn.itcast.hotel.service.impl</code>包下的<code>HotelService</code>类中的<code>buildBasicQuery</code>方法，添加算分函数查询：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">buildBasicQuery</span><span class="hljs-params">(RequestParams params, SearchRequest request)</span> &#123;<br>    <span class="hljs-comment">// 1.构建BooleanQuery</span><br>    <span class="hljs-type">BoolQueryBuilder</span> <span class="hljs-variable">boolQuery</span> <span class="hljs-operator">=</span> QueryBuilders.boolQuery();<br>    <span class="hljs-comment">// 关键字搜索</span><br>    <span class="hljs-type">String</span> <span class="hljs-variable">key</span> <span class="hljs-operator">=</span> params.getKey();<br>    <span class="hljs-keyword">if</span> (key == <span class="hljs-literal">null</span> || <span class="hljs-string">&quot;&quot;</span>.equals(key)) &#123;<br>        boolQuery.must(QueryBuilders.matchAllQuery());<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        boolQuery.must(QueryBuilders.matchQuery(<span class="hljs-string">&quot;all&quot;</span>, key));<br>    &#125;<br>    <span class="hljs-comment">// 城市条件</span><br>    <span class="hljs-keyword">if</span> (params.getCity() != <span class="hljs-literal">null</span> &amp;&amp; !params.getCity().equals(<span class="hljs-string">&quot;&quot;</span>)) &#123;<br>        boolQuery.filter(QueryBuilders.termQuery(<span class="hljs-string">&quot;city&quot;</span>, params.getCity()));<br>    &#125;<br>    <span class="hljs-comment">// 品牌条件</span><br>    <span class="hljs-keyword">if</span> (params.getBrand() != <span class="hljs-literal">null</span> &amp;&amp; !params.getBrand().equals(<span class="hljs-string">&quot;&quot;</span>)) &#123;<br>        boolQuery.filter(QueryBuilders.termQuery(<span class="hljs-string">&quot;brand&quot;</span>, params.getBrand()));<br>    &#125;<br>    <span class="hljs-comment">// 星级条件</span><br>    <span class="hljs-keyword">if</span> (params.getStarName() != <span class="hljs-literal">null</span> &amp;&amp; !params.getStarName().equals(<span class="hljs-string">&quot;&quot;</span>)) &#123;<br>        boolQuery.filter(QueryBuilders.termQuery(<span class="hljs-string">&quot;starName&quot;</span>, params.getStarName()));<br>    &#125;<br>    <span class="hljs-comment">// 价格</span><br>    <span class="hljs-keyword">if</span> (params.getMinPrice() != <span class="hljs-literal">null</span> &amp;&amp; params.getMaxPrice() != <span class="hljs-literal">null</span>) &#123;<br>        boolQuery.filter(QueryBuilders<br>                         .rangeQuery(<span class="hljs-string">&quot;price&quot;</span>)<br>                         .gte(params.getMinPrice())<br>                         .lte(params.getMaxPrice())<br>                        );<br>    &#125;<br><br>    <span class="hljs-comment">// 2.算分控制</span><br>    <span class="hljs-type">FunctionScoreQueryBuilder</span> <span class="hljs-variable">functionScoreQuery</span> <span class="hljs-operator">=</span><br>        QueryBuilders.functionScoreQuery(<br>        <span class="hljs-comment">// 原始查询，相关性算分的查询</span><br>        boolQuery,<br>        <span class="hljs-comment">// function score的数组</span><br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">FunctionScoreQueryBuilder</span>.FilterFunctionBuilder[]&#123;<br>            <span class="hljs-comment">// 其中的一个function score 元素</span><br>            <span class="hljs-keyword">new</span> <span class="hljs-title class_">FunctionScoreQueryBuilder</span>.FilterFunctionBuilder(<br>                <span class="hljs-comment">// 过滤条件</span><br>                QueryBuilders.termQuery(<span class="hljs-string">&quot;isAD&quot;</span>, <span class="hljs-literal">true</span>),<br>                <span class="hljs-comment">// 算分函数</span><br>                ScoreFunctionBuilders.weightFactorFunction(<span class="hljs-number">10</span>)<br>            )<br>        &#125;);<br>    request.source().query(functionScoreQuery);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/SpringCloud/" class="category-chain-item">SpringCloud</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>分布式搜索引擎02</div>
+      <div>http://example.com/2023/01/14/分布式搜索引擎02/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>John Doe</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年1月14日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/" title="分布式搜索引擎03">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">分布式搜索引擎03</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E01/" title="分布式搜索引擎01">
+                        <span class="hidden-mobile">分布式搜索引擎01</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+  
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+<script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+<script type="text/javascript" src="/js/fireworks.js"></script>
+<script type="text/javascript" src="\js\snow.js"></script>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><script async>window.onload=function(){var a=document.createElement('script'),b=document.getElementsByTagName('script')[0];a.type='text/javascript',a.async=!0,a.src='/sw-register.js?v='+Date.now(),b.parentNode.insertBefore(a,b)};</script></body></html>

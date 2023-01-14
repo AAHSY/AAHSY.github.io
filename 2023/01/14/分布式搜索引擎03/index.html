@@ -1,0 +1,1116 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="分布式搜索引擎030.学习目标1.数据聚合**聚合（aggregations）**可以让我们极其方便的实现对数据的统计、分析、运算。例如：  什么品牌的手机最受欢迎？ 这些手机的平均价格、最高价格、最低价格？ 这些手机每月的销售情况如何？  实现这些统计功能的比数据库的sql要方便的多，而且查询速度非常快，可以实现近实时搜索效果。 1.1.聚合的种类聚合常见的有三类：  桶（Bucket）聚合：用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分布式搜索引擎03">
+<meta property="og:url" content="http://example.com/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/index.html">
+<meta property="og:site_name" content="小約翰">
+<meta property="og:description" content="分布式搜索引擎030.学习目标1.数据聚合**聚合（aggregations）**可以让我们极其方便的实现对数据的统计、分析、运算。例如：  什么品牌的手机最受欢迎？ 这些手机的平均价格、最高价格、最低价格？ 这些手机每月的销售情况如何？  实现这些统计功能的比数据库的sql要方便的多，而且查询速度非常快，可以实现近实时搜索效果。 1.1.聚合的种类聚合常见的有三类：  桶（Bucket）聚合：用">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/11.png">
+<meta property="article:published_time" content="2023-01-14T15:18:21.000Z">
+<meta property="article:modified_time" content="2023-01-14T15:19:34.229Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/img/11.png">
+  
+  
+  
+  <title>分布式搜索引擎03 - 小約翰</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>小约翰</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/3.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="分布式搜索引擎03"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-01-14 23:18" pubdate>
+          2023年1月14日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          21k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          173 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">分布式搜索引擎03</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="分布式搜索引擎03"><a href="#分布式搜索引擎03" class="headerlink" title="分布式搜索引擎03"></a>分布式搜索引擎03</h1><h1 id="0-学习目标"><a href="#0-学习目标" class="headerlink" title="0.学习目标"></a>0.学习目标</h1><h1 id="1-数据聚合"><a href="#1-数据聚合" class="headerlink" title="1.数据聚合"></a>1.数据聚合</h1><p>**<a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html">聚合（</a><a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html">aggregations</a><a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html">）</a>**可以让我们极其方便的实现对数据的统计、分析、运算。例如：</p>
+<ul>
+<li>什么品牌的手机最受欢迎？</li>
+<li>这些手机的平均价格、最高价格、最低价格？</li>
+<li>这些手机每月的销售情况如何？</li>
+</ul>
+<p>实现这些统计功能的比数据库的sql要方便的多，而且查询速度非常快，可以实现近实时搜索效果。</p>
+<h2 id="1-1-聚合的种类"><a href="#1-1-聚合的种类" class="headerlink" title="1.1.聚合的种类"></a>1.1.聚合的种类</h2><p>聚合常见的有三类：</p>
+<ul>
+<li><p><strong>桶（Bucket）</strong>聚合：用来对文档做分组</p>
+<ul>
+<li>TermAggregation：按照文档字段值分组，例如按照品牌值分组、按照国家分组</li>
+<li>Date Histogram：按照日期阶梯分组，例如一周为一组，或者一月为一组</li>
+</ul>
+</li>
+<li><p><strong>度量（Metric）</strong>聚合：用以计算一些值，比如：最大值、最小值、平均值等</p>
+<ul>
+<li>Avg：求平均值</li>
+<li>Max：求最大值</li>
+<li>Min：求最小值</li>
+<li>Stats：同时求max、min、avg、sum等</li>
+</ul>
+</li>
+<li><p><strong>管道（pipeline）</strong>聚合：其它聚合的结果为基础做聚合</p>
+</li>
+</ul>
+<blockquote>
+<p><strong>注意：</strong>参加聚合的字段必须是keyword、日期、数值、布尔类型</p>
+</blockquote>
+<h2 id="1-2-DSL实现聚合"><a href="#1-2-DSL实现聚合" class="headerlink" title="1.2.DSL实现聚合"></a>1.2.DSL实现聚合</h2><p>现在，我们要统计所有数据中的酒店品牌有几种，其实就是按照品牌对数据分组。此时可以根据酒店品牌的名称做聚合，也就是Bucket聚合。</p>
+<h3 id="1-2-1-Bucket聚合语法"><a href="#1-2-1-Bucket聚合语法" class="headerlink" title="1.2.1.Bucket聚合语法"></a>1.2.1.Bucket聚合语法</h3><p>语法如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs json">GET /hotel/_search<br><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;size&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span>  <span class="hljs-comment">// 设置size为0，结果中不包含文档，只包含聚合结果</span><br>  <span class="hljs-attr">&quot;aggs&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span> <span class="hljs-comment">// 定义聚合</span><br>    <span class="hljs-attr">&quot;brandAgg&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span> <span class="hljs-comment">//给聚合起个名字</span><br>      <span class="hljs-attr">&quot;terms&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span> <span class="hljs-comment">// 聚合的类型，按照品牌值聚合，所以选择term</span><br>        <span class="hljs-attr">&quot;field&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;brand&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-comment">// 参与聚合的字段</span><br>        <span class="hljs-attr">&quot;size&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">20</span> <span class="hljs-comment">// 希望获取的聚合结果数量</span><br>      <span class="hljs-punctuation">&#125;</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p>结果如图：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723171948228.png" srcset="/img/loading.gif" lazyload alt="image-20210723171948228"></p>
+<h3 id="1-2-2-聚合结果排序"><a href="#1-2-2-聚合结果排序" class="headerlink" title="1.2.2.聚合结果排序"></a>1.2.2.聚合结果排序</h3><p>默认情况下，Bucket聚合会统计Bucket内的文档数量，记为_count，并且按照_count降序排序。</p>
+<p>我们可以指定order属性，自定义聚合的排序方式：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs json">GET /hotel/_search<br><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;size&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span> <br>  <span class="hljs-attr">&quot;aggs&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;brandAgg&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;terms&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">&quot;field&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;brand&quot;</span><span class="hljs-punctuation">,</span><br>        <span class="hljs-attr">&quot;order&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>          <span class="hljs-attr">&quot;_count&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;asc&quot;</span> <span class="hljs-comment">// 按照_count升序排列</span><br>        <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>        <span class="hljs-attr">&quot;size&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">20</span><br>      <span class="hljs-punctuation">&#125;</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="1-2-3-限定聚合范围"><a href="#1-2-3-限定聚合范围" class="headerlink" title="1.2.3.限定聚合范围"></a>1.2.3.限定聚合范围</h3><p>默认情况下，Bucket聚合是对索引库的所有文档做聚合，但真实场景下，用户会输入搜索条件，因此聚合必须是对搜索结果聚合。那么聚合必须添加限定条件。</p>
+<p>我们可以限定要聚合的文档范围，只要添加query条件即可：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs json">GET /hotel/_search<br><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;query&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;range&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;price&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">&quot;lte&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">200</span> <span class="hljs-comment">// 只对200元以下的文档聚合</span><br>      <span class="hljs-punctuation">&#125;</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span> <br>  <span class="hljs-attr">&quot;size&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span> <br>  <span class="hljs-attr">&quot;aggs&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;brandAgg&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;terms&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">&quot;field&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;brand&quot;</span><span class="hljs-punctuation">,</span><br>        <span class="hljs-attr">&quot;size&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">20</span><br>      <span class="hljs-punctuation">&#125;</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+
+
+<p>这次，聚合得到的品牌明显变少了：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723172404836.png" srcset="/img/loading.gif" lazyload alt="image-20210723172404836"></p>
+<h3 id="1-2-4-Metric聚合语法"><a href="#1-2-4-Metric聚合语法" class="headerlink" title="1.2.4.Metric聚合语法"></a>1.2.4.Metric聚合语法</h3><p>上节课，我们对酒店按照品牌分组，形成了一个个桶。现在我们需要对桶内的酒店做运算，获取每个品牌的用户评分的min、max、avg等值。</p>
+<p>这就要用到Metric聚合了，例如stat聚合：就可以获取min、max、avg等结果。</p>
+<p>语法如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs json">GET /hotel/_search<br><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;size&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span> <br>  <span class="hljs-attr">&quot;aggs&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;brandAgg&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span> <br>      <span class="hljs-attr">&quot;terms&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span> <br>        <span class="hljs-attr">&quot;field&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;brand&quot;</span><span class="hljs-punctuation">,</span> <br>        <span class="hljs-attr">&quot;size&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">20</span><br>      <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;aggs&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span> <span class="hljs-comment">// 是brands聚合的子聚合，也就是分组后对每组分别计算</span><br>        <span class="hljs-attr">&quot;score_stats&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span> <span class="hljs-comment">// 聚合名称</span><br>          <span class="hljs-attr">&quot;stats&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span> <span class="hljs-comment">// 聚合类型，这里stats可以计算min、max、avg等</span><br>            <span class="hljs-attr">&quot;field&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;score&quot;</span> <span class="hljs-comment">// 聚合字段，这里是score</span><br>          <span class="hljs-punctuation">&#125;</span><br>        <span class="hljs-punctuation">&#125;</span><br>      <span class="hljs-punctuation">&#125;</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+
+
+<p>这次的score_stats聚合是在brandAgg的聚合内部嵌套的子聚合。因为我们需要在每个桶分别计算。</p>
+<p>另外，我们还可以给聚合结果做个排序，例如按照每个桶的酒店平均分做排序：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723172917636.png" srcset="/img/loading.gif" lazyload alt="image-20210723172917636"></p>
+<h3 id="1-2-5-小结"><a href="#1-2-5-小结" class="headerlink" title="1.2.5.小结"></a>1.2.5.小结</h3><p>aggs代表聚合，与query同级，此时query的作用是？</p>
+<ul>
+<li>限定聚合的的文档范围</li>
+</ul>
+<p>聚合必须的三要素：</p>
+<ul>
+<li>聚合名称</li>
+<li>聚合类型</li>
+<li>聚合字段</li>
+</ul>
+<p>聚合可配置属性有：</p>
+<ul>
+<li>size：指定聚合结果数量</li>
+<li>order：指定聚合结果排序方式</li>
+<li>field：指定聚合字段</li>
+</ul>
+<h2 id="1-3-RestAPI实现聚合"><a href="#1-3-RestAPI实现聚合" class="headerlink" title="1.3.RestAPI实现聚合"></a>1.3.RestAPI实现聚合</h2><h3 id="1-3-1-API语法"><a href="#1-3-1-API语法" class="headerlink" title="1.3.1.API语法"></a>1.3.1.API语法</h3><p>聚合条件与query条件同级别，因此需要使用request.source()来指定聚合条件。</p>
+<p>聚合条件的语法：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723173057733.png" srcset="/img/loading.gif" lazyload alt="image-20210723173057733"></p>
+<p>聚合的结果也与查询结果不同，API也比较特殊。不过同样是JSON逐层解析：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723173215728.png" srcset="/img/loading.gif" lazyload alt="image-20210723173215728"></p>
+<h3 id="1-3-2-业务需求"><a href="#1-3-2-业务需求" class="headerlink" title="1.3.2.业务需求"></a>1.3.2.业务需求</h3><p>需求：搜索页面的品牌、城市等信息不应该是在页面写死，而是通过聚合索引库中的酒店数据得来的：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723192605566.png" srcset="/img/loading.gif" lazyload alt="image-20210723192605566"></p>
+<p>分析：</p>
+<p>目前，页面的城市列表、星级列表、品牌列表都是写死的，并不会随着搜索结果的变化而变化。但是用户搜索条件改变时，搜索结果会跟着变化。</p>
+<p>例如：用户搜索“东方明珠”，那搜索的酒店肯定是在上海东方明珠附近，因此，城市只能是上海，此时城市列表中就不应该显示北京、深圳、杭州这些信息了。</p>
+<p>也就是说，搜索结果中包含哪些城市，页面就应该列出哪些城市；搜索结果中包含哪些品牌，页面就应该列出哪些品牌。</p>
+<p>如何得知搜索结果中包含哪些品牌？如何得知搜索结果中包含哪些城市？</p>
+<p>使用聚合功能，利用Bucket聚合，对搜索结果中的文档基于品牌分组、基于城市分组，就能得知包含哪些品牌、哪些城市了。</p>
+<p>因为是对搜索结果聚合，因此聚合是<strong>限定范围的聚合</strong>，也就是说聚合的限定条件跟搜索文档的条件一致。</p>
+<p>查看浏览器可以发现，前端其实已经发出了这样的一个请求：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723193730799.png" srcset="/img/loading.gif" lazyload alt="image-20210723193730799"></p>
+<p>请求<strong>参数与搜索文档的参数完全一致</strong>。</p>
+<p>返回值类型就是页面要展示的最终结果：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723203915982.png" srcset="/img/loading.gif" lazyload alt="image-20210723203915982"></p>
+<p>结果是一个Map结构：</p>
+<ul>
+<li>key是字符串，城市、星级、品牌、价格</li>
+<li>value是集合，例如多个城市的名称</li>
+</ul>
+<h3 id="1-3-3-业务实现"><a href="#1-3-3-业务实现" class="headerlink" title="1.3.3.业务实现"></a>1.3.3.业务实现</h3><p>在<code>cn.itcast.hotel.web</code>包的<code>HotelController</code>中添加一个方法，遵循下面的要求：</p>
+<ul>
+<li>请求方式：<code>POST</code></li>
+<li>请求路径：<code>/hotel/filters</code></li>
+<li>请求参数：<code>RequestParams</code>，与搜索文档的参数一致</li>
+<li>返回值类型：<code>Map&lt;String, List&lt;String&gt;&gt;</code></li>
+</ul>
+<p>代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@PostMapping(&quot;filters&quot;)</span><br><span class="hljs-keyword">public</span> Map&lt;String, List&lt;String&gt;&gt; <span class="hljs-title function_">getFilters</span><span class="hljs-params">(<span class="hljs-meta">@RequestBody</span> RequestParams params)</span>&#123;<br>    <span class="hljs-keyword">return</span> hotelService.getFilters(params);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<p>这里调用了IHotelService中的getFilters方法，尚未实现。</p>
+<p>在<code>cn.itcast.hotel.service.IHotelService</code>中定义新方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">Map&lt;String, List&lt;String&gt;&gt; <span class="hljs-title function_">filters</span><span class="hljs-params">(RequestParams params)</span>;<br></code></pre></td></tr></table></figure>
+
+
+
+<p>在<code>cn.itcast.hotel.service.impl.HotelService</code>中实现该方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> Map&lt;String, List&lt;String&gt;&gt; <span class="hljs-title function_">filters</span><span class="hljs-params">(RequestParams params)</span> &#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">// 1.准备Request</span><br>        <span class="hljs-type">SearchRequest</span> <span class="hljs-variable">request</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SearchRequest</span>(<span class="hljs-string">&quot;hotel&quot;</span>);<br>        <span class="hljs-comment">// 2.准备DSL</span><br>        <span class="hljs-comment">// 2.1.query</span><br>        buildBasicQuery(params, request);<br>        <span class="hljs-comment">// 2.2.设置size</span><br>        request.source().size(<span class="hljs-number">0</span>);<br>        <span class="hljs-comment">// 2.3.聚合</span><br>        buildAggregation(request);<br>        <span class="hljs-comment">// 3.发出请求</span><br>        <span class="hljs-type">SearchResponse</span> <span class="hljs-variable">response</span> <span class="hljs-operator">=</span> client.search(request, RequestOptions.DEFAULT);<br>        <span class="hljs-comment">// 4.解析结果</span><br>        Map&lt;String, List&lt;String&gt;&gt; result = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>        <span class="hljs-type">Aggregations</span> <span class="hljs-variable">aggregations</span> <span class="hljs-operator">=</span> response.getAggregations();<br>        <span class="hljs-comment">// 4.1.根据品牌名称，获取品牌结果</span><br>        List&lt;String&gt; brandList = getAggByName(aggregations, <span class="hljs-string">&quot;brandAgg&quot;</span>);<br>        result.put(<span class="hljs-string">&quot;品牌&quot;</span>, brandList);<br>        <span class="hljs-comment">// 4.2.根据品牌名称，获取品牌结果</span><br>        List&lt;String&gt; cityList = getAggByName(aggregations, <span class="hljs-string">&quot;cityAgg&quot;</span>);<br>        result.put(<span class="hljs-string">&quot;城市&quot;</span>, cityList);<br>        <span class="hljs-comment">// 4.3.根据品牌名称，获取品牌结果</span><br>        List&lt;String&gt; starList = getAggByName(aggregations, <span class="hljs-string">&quot;starAgg&quot;</span>);<br>        result.put(<span class="hljs-string">&quot;星级&quot;</span>, starList);<br><br>        <span class="hljs-keyword">return</span> result;<br>    &#125; <span class="hljs-keyword">catch</span> (IOException e) &#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(e);<br>    &#125;<br>&#125;<br><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">buildAggregation</span><span class="hljs-params">(SearchRequest request)</span> &#123;<br>    request.source().aggregation(AggregationBuilders<br>                                 .terms(<span class="hljs-string">&quot;brandAgg&quot;</span>)<br>                                 .field(<span class="hljs-string">&quot;brand&quot;</span>)<br>                                 .size(<span class="hljs-number">100</span>)<br>                                );<br>    request.source().aggregation(AggregationBuilders<br>                                 .terms(<span class="hljs-string">&quot;cityAgg&quot;</span>)<br>                                 .field(<span class="hljs-string">&quot;city&quot;</span>)<br>                                 .size(<span class="hljs-number">100</span>)<br>                                );<br>    request.source().aggregation(AggregationBuilders<br>                                 .terms(<span class="hljs-string">&quot;starAgg&quot;</span>)<br>                                 .field(<span class="hljs-string">&quot;starName&quot;</span>)<br>                                 .size(<span class="hljs-number">100</span>)<br>                                );<br>&#125;<br><br><span class="hljs-keyword">private</span> List&lt;String&gt; <span class="hljs-title function_">getAggByName</span><span class="hljs-params">(Aggregations aggregations, String aggName)</span> &#123;<br>    <span class="hljs-comment">// 4.1.根据聚合名称获取聚合结果</span><br>    <span class="hljs-type">Terms</span> <span class="hljs-variable">brandTerms</span> <span class="hljs-operator">=</span> aggregations.get(aggName);<br>    <span class="hljs-comment">// 4.2.获取buckets</span><br>    List&lt;? <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Terms</span>.Bucket&gt; buckets = brandTerms.getBuckets();<br>    <span class="hljs-comment">// 4.3.遍历</span><br>    List&lt;String&gt; brandList = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>    <span class="hljs-keyword">for</span> (Terms.Bucket bucket : buckets) &#123;<br>        <span class="hljs-comment">// 4.4.获取key</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">key</span> <span class="hljs-operator">=</span> bucket.getKeyAsString();<br>        brandList.add(key);<br>    &#125;<br>    <span class="hljs-keyword">return</span> brandList;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<h1 id="2-自动补全"><a href="#2-自动补全" class="headerlink" title="2.自动补全"></a>2.自动补全</h1><p>当用户在搜索框输入字符时，我们应该提示出与该字符有关的搜索项，如图：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723204936367.png" srcset="/img/loading.gif" lazyload alt="image-20210723204936367"></p>
+<p>这种根据用户输入的字母，提示完整词条的功能，就是自动补全了。</p>
+<p>因为需要根据拼音字母来推断，因此要用到拼音分词功能。</p>
+<h2 id="2-1-拼音分词器"><a href="#2-1-拼音分词器" class="headerlink" title="2.1.拼音分词器"></a>2.1.拼音分词器</h2><p>要实现根据字母做补全，就必须对文档按照拼音分词。在GitHub上恰好有elasticsearch的拼音分词插件。地址：<a target="_blank" rel="noopener" href="https://github.com/medcl/elasticsearch-analysis-pinyin">https://github.com/medcl/elasticsearch-analysis-pinyin</a></p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723205932746.png" srcset="/img/loading.gif" lazyload alt="image-20210723205932746"></p>
+<p>课前资料中也提供了拼音分词器的安装包：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723205722303.png" srcset="/img/loading.gif" lazyload alt="image-20210723205722303"> </p>
+<p>安装方式与IK分词器一样，分三步：</p>
+<p>​	①解压</p>
+<p>​	②上传到虚拟机中，elasticsearch的plugin目录</p>
+<p>​	③重启elasticsearch</p>
+<p>​	④测试</p>
+<p>详细安装步骤可以参考IK分词器的安装过程。</p>
+<p>测试用法如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs json">POST /_analyze<br><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;text&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;如家酒店还不错&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;analyzer&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;pinyin&quot;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p>结果：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723210126506.png" srcset="/img/loading.gif" lazyload alt="image-20210723210126506"> </p>
+<h2 id="2-2-自定义分词器"><a href="#2-2-自定义分词器" class="headerlink" title="2.2.自定义分词器"></a>2.2.自定义分词器</h2><p>默认的拼音分词器会将每个汉字单独分为拼音，而我们希望的是每个词条形成一组拼音，需要对拼音分词器做个性化定制，形成自定义分词器。</p>
+<p>elasticsearch中分词器（analyzer）的组成包含三部分：</p>
+<ul>
+<li>character filters：在tokenizer之前对文本进行处理。例如删除字符、替换字符</li>
+<li>tokenizer：将文本按照一定的规则切割成词条（term）。例如keyword，就是不分词；还有ik_smart</li>
+<li>tokenizer filter：将tokenizer输出的词条做进一步处理。例如大小写转换、同义词处理、拼音处理等</li>
+</ul>
+<p>文档分词时会依次由这三部分来处理文档：</p>
+<p>   <img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723210427878.png" srcset="/img/loading.gif" lazyload alt="image-20210723210427878"></p>
+<p>声明自定义分词器的语法如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs json">PUT /test<br><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;settings&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;analysis&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;analyzer&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span> <span class="hljs-comment">// 自定义分词器</span><br>        <span class="hljs-attr">&quot;my_analyzer&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span>  <span class="hljs-comment">// 分词器名称</span><br>          <span class="hljs-attr">&quot;tokenizer&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ik_max_word&quot;</span><span class="hljs-punctuation">,</span><br>          <span class="hljs-attr">&quot;filter&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;py&quot;</span><br>        <span class="hljs-punctuation">&#125;</span><br>      <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;filter&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span> <span class="hljs-comment">// 自定义tokenizer filter</span><br>        <span class="hljs-attr">&quot;py&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span> <span class="hljs-comment">// 过滤器名称</span><br>          <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;pinyin&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-comment">// 过滤器类型，这里是pinyin</span><br>		  <span class="hljs-attr">&quot;keep_full_pinyin&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">false</span></span><span class="hljs-punctuation">,</span><br>          <span class="hljs-attr">&quot;keep_joined_full_pinyin&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span><br>          <span class="hljs-attr">&quot;keep_original&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span><br>          <span class="hljs-attr">&quot;limit_first_letter_length&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">16</span><span class="hljs-punctuation">,</span><br>          <span class="hljs-attr">&quot;remove_duplicated_term&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span><br>          <span class="hljs-attr">&quot;none_chinese_pinyin_tokenize&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">false</span></span><br>        <span class="hljs-punctuation">&#125;</span><br>      <span class="hljs-punctuation">&#125;</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;mappings&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;properties&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;text&quot;</span><span class="hljs-punctuation">,</span><br>        <span class="hljs-attr">&quot;analyzer&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;my_analyzer&quot;</span><span class="hljs-punctuation">,</span><br>        <span class="hljs-attr">&quot;search_analyzer&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ik_smart&quot;</span><br>      <span class="hljs-punctuation">&#125;</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+
+
+<p>测试：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723211829150.png" srcset="/img/loading.gif" lazyload alt="image-20210723211829150"></p>
+<p>总结：</p>
+<p>如何使用拼音分词器？</p>
+<ul>
+<li><p>①下载pinyin分词器</p>
+</li>
+<li><p>②解压并放到elasticsearch的plugin目录</p>
+</li>
+<li><p>③重启即可</p>
+</li>
+</ul>
+<p>如何自定义分词器？</p>
+<ul>
+<li><p>①创建索引库时，在settings中配置，可以包含三部分</p>
+</li>
+<li><p>②character filter</p>
+</li>
+<li><p>③tokenizer</p>
+</li>
+<li><p>④filter</p>
+</li>
+</ul>
+<p>拼音分词器注意事项？</p>
+<ul>
+<li>为了避免搜索到同音字，搜索时不要使用拼音分词器</li>
+</ul>
+<h2 id="2-3-自动补全查询"><a href="#2-3-自动补全查询" class="headerlink" title="2.3.自动补全查询"></a>2.3.自动补全查询</h2><p>elasticsearch提供了<a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-suggesters.html">Completion Suggester</a>查询来实现自动补全功能。这个查询会匹配以用户输入内容开头的词条并返回。为了提高补全查询的效率，对于文档中字段的类型有一些约束：</p>
+<ul>
+<li><p>参与补全查询的字段必须是completion类型。</p>
+</li>
+<li><p>字段的内容一般是用来补全的多个词条形成的数组。</p>
+</li>
+</ul>
+<p>比如，一个这样的索引库：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-comment">// 创建索引库</span><br>PUT test<br><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;mappings&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;properties&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;title&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;completion&quot;</span><br>      <span class="hljs-punctuation">&#125;</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p>然后插入下面的数据：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-comment">// 示例数据</span><br>POST test/_doc<br><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;title&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;Sony&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-string">&quot;WH-1000XM3&quot;</span><span class="hljs-punctuation">]</span><br><span class="hljs-punctuation">&#125;</span><br>POST test/_doc<br><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;title&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;SK-II&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-string">&quot;PITERA&quot;</span><span class="hljs-punctuation">]</span><br><span class="hljs-punctuation">&#125;</span><br>POST test/_doc<br><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;title&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;Nintendo&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-string">&quot;switch&quot;</span><span class="hljs-punctuation">]</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+
+
+<p>查询的DSL语句如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-comment">// 自动补全查询</span><br>GET /test/_search<br><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;suggest&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;title_suggest&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;text&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;s&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-comment">// 关键字</span><br>      <span class="hljs-attr">&quot;completion&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">&quot;field&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;title&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-comment">// 补全查询的字段</span><br>        <span class="hljs-attr">&quot;skip_duplicates&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span> <span class="hljs-comment">// 跳过重复的</span><br>        <span class="hljs-attr">&quot;size&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">10</span> <span class="hljs-comment">// 获取前10条结果</span><br>      <span class="hljs-punctuation">&#125;</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<h2 id="2-4-实现酒店搜索框自动补全"><a href="#2-4-实现酒店搜索框自动补全" class="headerlink" title="2.4.实现酒店搜索框自动补全"></a>2.4.实现酒店搜索框自动补全</h2><p>现在，我们的hotel索引库还没有设置拼音分词器，需要修改索引库中的配置。但是我们知道索引库是无法修改的，只能删除然后重新创建。</p>
+<p>另外，我们需要添加一个字段，用来做自动补全，将brand、suggestion、city等都放进去，作为自动补全的提示。</p>
+<p>因此，总结一下，我们需要做的事情包括：</p>
+<ol>
+<li><p>修改hotel索引库结构，设置自定义拼音分词器</p>
+</li>
+<li><p>修改索引库的name、all字段，使用自定义分词器</p>
+</li>
+<li><p>索引库添加一个新字段suggestion，类型为completion类型，使用自定义的分词器</p>
+</li>
+<li><p>给HotelDoc类添加suggestion字段，内容包含brand、business</p>
+</li>
+<li><p>重新导入数据到hotel库</p>
+</li>
+</ol>
+<h3 id="2-4-1-修改酒店映射结构"><a href="#2-4-1-修改酒店映射结构" class="headerlink" title="2.4.1.修改酒店映射结构"></a>2.4.1.修改酒店映射结构</h3><p>代码如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-comment">// 酒店数据索引库</span><br>PUT /hotel<br><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;settings&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;analysis&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;analyzer&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">&quot;text_anlyzer&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>          <span class="hljs-attr">&quot;tokenizer&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ik_max_word&quot;</span><span class="hljs-punctuation">,</span><br>          <span class="hljs-attr">&quot;filter&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;py&quot;</span><br>        <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>        <span class="hljs-attr">&quot;completion_analyzer&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>          <span class="hljs-attr">&quot;tokenizer&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;keyword&quot;</span><span class="hljs-punctuation">,</span><br>          <span class="hljs-attr">&quot;filter&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;py&quot;</span><br>        <span class="hljs-punctuation">&#125;</span><br>      <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;filter&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">&quot;py&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>          <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;pinyin&quot;</span><span class="hljs-punctuation">,</span><br>          <span class="hljs-attr">&quot;keep_full_pinyin&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">false</span></span><span class="hljs-punctuation">,</span><br>          <span class="hljs-attr">&quot;keep_joined_full_pinyin&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span><br>          <span class="hljs-attr">&quot;keep_original&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span><br>          <span class="hljs-attr">&quot;limit_first_letter_length&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">16</span><span class="hljs-punctuation">,</span><br>          <span class="hljs-attr">&quot;remove_duplicated_term&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span><br>          <span class="hljs-attr">&quot;none_chinese_pinyin_tokenize&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">false</span></span><br>        <span class="hljs-punctuation">&#125;</span><br>      <span class="hljs-punctuation">&#125;</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;mappings&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;properties&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;keyword&quot;</span><br>      <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;text&quot;</span><span class="hljs-punctuation">,</span><br>        <span class="hljs-attr">&quot;analyzer&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;text_anlyzer&quot;</span><span class="hljs-punctuation">,</span><br>        <span class="hljs-attr">&quot;search_analyzer&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ik_smart&quot;</span><span class="hljs-punctuation">,</span><br>        <span class="hljs-attr">&quot;copy_to&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;all&quot;</span><br>      <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;address&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;keyword&quot;</span><span class="hljs-punctuation">,</span><br>        <span class="hljs-attr">&quot;index&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">false</span></span><br>      <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;price&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;integer&quot;</span><br>      <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;score&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;integer&quot;</span><br>      <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;brand&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;keyword&quot;</span><span class="hljs-punctuation">,</span><br>        <span class="hljs-attr">&quot;copy_to&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;all&quot;</span><br>      <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;city&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;keyword&quot;</span><br>      <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;starName&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;keyword&quot;</span><br>      <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;business&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;keyword&quot;</span><span class="hljs-punctuation">,</span><br>        <span class="hljs-attr">&quot;copy_to&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;all&quot;</span><br>      <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;location&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;geo_point&quot;</span><br>      <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;pic&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;keyword&quot;</span><span class="hljs-punctuation">,</span><br>        <span class="hljs-attr">&quot;index&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">false</span></span><br>      <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;all&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;text&quot;</span><span class="hljs-punctuation">,</span><br>        <span class="hljs-attr">&quot;analyzer&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;text_anlyzer&quot;</span><span class="hljs-punctuation">,</span><br>        <span class="hljs-attr">&quot;search_analyzer&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ik_smart&quot;</span><br>      <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;suggestion&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-punctuation">&#123;</span><br>          <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;completion&quot;</span><span class="hljs-punctuation">,</span><br>          <span class="hljs-attr">&quot;analyzer&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;completion_analyzer&quot;</span><br>      <span class="hljs-punctuation">&#125;</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="2-4-2-修改HotelDoc实体"><a href="#2-4-2-修改HotelDoc实体" class="headerlink" title="2.4.2.修改HotelDoc实体"></a>2.4.2.修改HotelDoc实体</h3><p>HotelDoc中要添加一个字段，用来做自动补全，内容可以是酒店品牌、城市、商圈等信息。按照自动补全字段的要求，最好是这些字段的数组。</p>
+<p>因此我们在HotelDoc中添加一个suggestion字段，类型为<code>List&lt;String&gt;</code>，然后将brand、city、business等信息放到里面。</p>
+<p>代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> cn.itcast.hotel.pojo;<br><br><span class="hljs-keyword">import</span> lombok.Data;<br><span class="hljs-keyword">import</span> lombok.NoArgsConstructor;<br><br><span class="hljs-keyword">import</span> java.util.ArrayList;<br><span class="hljs-keyword">import</span> java.util.Arrays;<br><span class="hljs-keyword">import</span> java.util.Collections;<br><span class="hljs-keyword">import</span> java.util.List;<br><br><span class="hljs-meta">@Data</span><br><span class="hljs-meta">@NoArgsConstructor</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">HotelDoc</span> &#123;<br>    <span class="hljs-keyword">private</span> Long id;<br>    <span class="hljs-keyword">private</span> String name;<br>    <span class="hljs-keyword">private</span> String address;<br>    <span class="hljs-keyword">private</span> Integer price;<br>    <span class="hljs-keyword">private</span> Integer score;<br>    <span class="hljs-keyword">private</span> String brand;<br>    <span class="hljs-keyword">private</span> String city;<br>    <span class="hljs-keyword">private</span> String starName;<br>    <span class="hljs-keyword">private</span> String business;<br>    <span class="hljs-keyword">private</span> String location;<br>    <span class="hljs-keyword">private</span> String pic;<br>    <span class="hljs-keyword">private</span> Object distance;<br>    <span class="hljs-keyword">private</span> Boolean isAD;<br>    <span class="hljs-keyword">private</span> List&lt;String&gt; suggestion;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">HotelDoc</span><span class="hljs-params">(Hotel hotel)</span> &#123;<br>        <span class="hljs-built_in">this</span>.id = hotel.getId();<br>        <span class="hljs-built_in">this</span>.name = hotel.getName();<br>        <span class="hljs-built_in">this</span>.address = hotel.getAddress();<br>        <span class="hljs-built_in">this</span>.price = hotel.getPrice();<br>        <span class="hljs-built_in">this</span>.score = hotel.getScore();<br>        <span class="hljs-built_in">this</span>.brand = hotel.getBrand();<br>        <span class="hljs-built_in">this</span>.city = hotel.getCity();<br>        <span class="hljs-built_in">this</span>.starName = hotel.getStarName();<br>        <span class="hljs-built_in">this</span>.business = hotel.getBusiness();<br>        <span class="hljs-built_in">this</span>.location = hotel.getLatitude() + <span class="hljs-string">&quot;, &quot;</span> + hotel.getLongitude();<br>        <span class="hljs-built_in">this</span>.pic = hotel.getPic();<br>        <span class="hljs-comment">// 组装suggestion</span><br>        <span class="hljs-keyword">if</span>(<span class="hljs-built_in">this</span>.business.contains(<span class="hljs-string">&quot;/&quot;</span>))&#123;<br>            <span class="hljs-comment">// business有多个值，需要切割</span><br>            String[] arr = <span class="hljs-built_in">this</span>.business.split(<span class="hljs-string">&quot;/&quot;</span>);<br>            <span class="hljs-comment">// 添加元素</span><br>            <span class="hljs-built_in">this</span>.suggestion = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>            <span class="hljs-built_in">this</span>.suggestion.add(<span class="hljs-built_in">this</span>.brand);<br>            Collections.addAll(<span class="hljs-built_in">this</span>.suggestion, arr);<br>        &#125;<span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-built_in">this</span>.suggestion = Arrays.asList(<span class="hljs-built_in">this</span>.brand, <span class="hljs-built_in">this</span>.business);<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="2-4-3-重新导入"><a href="#2-4-3-重新导入" class="headerlink" title="2.4.3.重新导入"></a>2.4.3.重新导入</h3><p>重新执行之前编写的导入数据功能，可以看到新的酒店数据中包含了suggestion：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723213546183.png" srcset="/img/loading.gif" lazyload alt="image-20210723213546183"></p>
+<h3 id="2-4-4-自动补全查询的JavaAPI"><a href="#2-4-4-自动补全查询的JavaAPI" class="headerlink" title="2.4.4.自动补全查询的JavaAPI"></a>2.4.4.自动补全查询的JavaAPI</h3><p>之前我们学习了自动补全查询的DSL，而没有学习对应的JavaAPI，这里给出一个示例：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723213759922.png" srcset="/img/loading.gif" lazyload alt="image-20210723213759922"></p>
+<p>而自动补全的结果也比较特殊，解析的代码如下：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723213917524.png" srcset="/img/loading.gif" lazyload alt="image-20210723213917524"></p>
+<h3 id="2-4-5-实现搜索框自动补全"><a href="#2-4-5-实现搜索框自动补全" class="headerlink" title="2.4.5.实现搜索框自动补全"></a>2.4.5.实现搜索框自动补全</h3><p>查看前端页面，可以发现当我们在输入框键入时，前端会发起ajax请求：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723214021062.png" srcset="/img/loading.gif" lazyload alt="image-20210723214021062"></p>
+<p>返回值是补全词条的集合，类型为<code>List&lt;String&gt;</code></p>
+<p>1）在<code>cn.itcast.hotel.web</code>包下的<code>HotelController</code>中添加新接口，接收新的请求：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@GetMapping(&quot;suggestion&quot;)</span><br><span class="hljs-keyword">public</span> List&lt;String&gt; <span class="hljs-title function_">getSuggestions</span><span class="hljs-params">(<span class="hljs-meta">@RequestParam(&quot;key&quot;)</span> String prefix)</span> &#123;<br>    <span class="hljs-keyword">return</span> hotelService.getSuggestions(prefix);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<p>2）在<code>cn.itcast.hotel.service</code>包下的<code>IhotelService</code>中添加方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">List&lt;String&gt; <span class="hljs-title function_">getSuggestions</span><span class="hljs-params">(String prefix)</span>;<br></code></pre></td></tr></table></figure>
+
+
+
+<p>3）在<code>cn.itcast.hotel.service.impl.HotelService</code>中实现该方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> List&lt;String&gt; <span class="hljs-title function_">getSuggestions</span><span class="hljs-params">(String prefix)</span> &#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">// 1.准备Request</span><br>        <span class="hljs-type">SearchRequest</span> <span class="hljs-variable">request</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SearchRequest</span>(<span class="hljs-string">&quot;hotel&quot;</span>);<br>        <span class="hljs-comment">// 2.准备DSL</span><br>        request.source().suggest(<span class="hljs-keyword">new</span> <span class="hljs-title class_">SuggestBuilder</span>().addSuggestion(<br>            <span class="hljs-string">&quot;suggestions&quot;</span>,<br>            SuggestBuilders.completionSuggestion(<span class="hljs-string">&quot;suggestion&quot;</span>)<br>            .prefix(prefix)<br>            .skipDuplicates(<span class="hljs-literal">true</span>)<br>            .size(<span class="hljs-number">10</span>)<br>        ));<br>        <span class="hljs-comment">// 3.发起请求</span><br>        <span class="hljs-type">SearchResponse</span> <span class="hljs-variable">response</span> <span class="hljs-operator">=</span> client.search(request, RequestOptions.DEFAULT);<br>        <span class="hljs-comment">// 4.解析结果</span><br>        <span class="hljs-type">Suggest</span> <span class="hljs-variable">suggest</span> <span class="hljs-operator">=</span> response.getSuggest();<br>        <span class="hljs-comment">// 4.1.根据补全查询名称，获取补全结果</span><br>        <span class="hljs-type">CompletionSuggestion</span> <span class="hljs-variable">suggestions</span> <span class="hljs-operator">=</span> suggest.getSuggestion(<span class="hljs-string">&quot;suggestions&quot;</span>);<br>        <span class="hljs-comment">// 4.2.获取options</span><br>        List&lt;CompletionSuggestion.Entry.Option&gt; options = suggestions.getOptions();<br>        <span class="hljs-comment">// 4.3.遍历</span><br>        List&lt;String&gt; list = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;(options.size());<br>        <span class="hljs-keyword">for</span> (CompletionSuggestion.Entry.Option option : options) &#123;<br>            <span class="hljs-type">String</span> <span class="hljs-variable">text</span> <span class="hljs-operator">=</span> option.getText().toString();<br>            list.add(text);<br>        &#125;<br>        <span class="hljs-keyword">return</span> list;<br>    &#125; <span class="hljs-keyword">catch</span> (IOException e) &#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(e);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+<h1 id="3-数据同步"><a href="#3-数据同步" class="headerlink" title="3.数据同步"></a>3.数据同步</h1><p>elasticsearch中的酒店数据来自于mysql数据库，因此mysql数据发生改变时，elasticsearch也必须跟着改变，这个就是elasticsearch与mysql之间的<strong>数据同步</strong>。</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723214758392.png" srcset="/img/loading.gif" lazyload alt="image-20210723214758392"></p>
+<h2 id="3-1-思路分析"><a href="#3-1-思路分析" class="headerlink" title="3.1.思路分析"></a>3.1.思路分析</h2><p>常见的数据同步方案有三种：</p>
+<ul>
+<li>同步调用</li>
+<li>异步通知</li>
+<li>监听binlog</li>
+</ul>
+<h3 id="3-1-1-同步调用"><a href="#3-1-1-同步调用" class="headerlink" title="3.1.1.同步调用"></a>3.1.1.同步调用</h3><p>方案一：同步调用</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723214931869.png" srcset="/img/loading.gif" lazyload alt="image-20210723214931869"></p>
+<p>基本步骤如下：</p>
+<ul>
+<li>hotel-demo对外提供接口，用来修改elasticsearch中的数据</li>
+<li>酒店管理服务在完成数据库操作后，直接调用hotel-demo提供的接口，</li>
+</ul>
+<h3 id="3-1-2-异步通知"><a href="#3-1-2-异步通知" class="headerlink" title="3.1.2.异步通知"></a>3.1.2.异步通知</h3><p>方案二：异步通知</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723215140735.png" srcset="/img/loading.gif" lazyload alt="image-20210723215140735"></p>
+<p>流程如下：</p>
+<ul>
+<li>hotel-admin对mysql数据库数据完成增、删、改后，发送MQ消息</li>
+<li>hotel-demo监听MQ，接收到消息后完成elasticsearch数据修改</li>
+</ul>
+<h3 id="3-1-3-监听binlog"><a href="#3-1-3-监听binlog" class="headerlink" title="3.1.3.监听binlog"></a>3.1.3.监听binlog</h3><p>方案三：监听binlog</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723215518541.png" srcset="/img/loading.gif" lazyload alt="image-20210723215518541"></p>
+<p>流程如下：</p>
+<ul>
+<li>给mysql开启binlog功能</li>
+<li>mysql完成增、删、改操作都会记录在binlog中</li>
+<li>hotel-demo基于canal监听binlog变化，实时更新elasticsearch中的内容</li>
+</ul>
+<h3 id="3-1-4-选择"><a href="#3-1-4-选择" class="headerlink" title="3.1.4.选择"></a>3.1.4.选择</h3><p>方式一：同步调用</p>
+<ul>
+<li>优点：实现简单，粗暴</li>
+<li>缺点：业务耦合度高</li>
+</ul>
+<p>方式二：异步通知</p>
+<ul>
+<li>优点：低耦合，实现难度一般</li>
+<li>缺点：依赖mq的可靠性</li>
+</ul>
+<p>方式三：监听binlog</p>
+<ul>
+<li>优点：完全解除服务间耦合</li>
+<li>缺点：开启binlog增加数据库负担、实现复杂度高</li>
+</ul>
+<h2 id="3-2-实现数据同步"><a href="#3-2-实现数据同步" class="headerlink" title="3.2.实现数据同步"></a>3.2.实现数据同步</h2><h3 id="3-2-1-思路"><a href="#3-2-1-思路" class="headerlink" title="3.2.1.思路"></a>3.2.1.思路</h3><p>利用课前资料提供的hotel-admin项目作为酒店管理的微服务。当酒店数据发生增、删、改时，要求对elasticsearch中数据也要完成相同操作。</p>
+<p>步骤：</p>
+<ul>
+<li><p>导入课前资料提供的hotel-admin项目，启动并测试酒店数据的CRUD</p>
+</li>
+<li><p>声明exchange、queue、RoutingKey</p>
+</li>
+<li><p>在hotel-admin中的增、删、改业务中完成消息发送</p>
+</li>
+<li><p>在hotel-demo中完成消息监听，并更新elasticsearch中数据</p>
+</li>
+<li><p>启动并测试数据同步功能</p>
+</li>
+</ul>
+<h3 id="3-2-2-导入demo"><a href="#3-2-2-导入demo" class="headerlink" title="3.2.2.导入demo"></a>3.2.2.导入demo</h3><p>导入课前资料提供的hotel-admin项目：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723220237930.png" srcset="/img/loading.gif" lazyload alt="image-20210723220237930"></p>
+<p>运行后，访问 <a target="_blank" rel="noopener" href="http://localhost:8099/">http://localhost:8099</a></p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723220354464.png" srcset="/img/loading.gif" lazyload alt="image-20210723220354464"></p>
+<p>其中包含了酒店的CRUD功能：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723220511090.png" srcset="/img/loading.gif" lazyload alt="image-20210723220511090"></p>
+<h3 id="3-2-3-声明交换机、队列"><a href="#3-2-3-声明交换机、队列" class="headerlink" title="3.2.3.声明交换机、队列"></a>3.2.3.声明交换机、队列</h3><p>MQ结构如图：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723215850307.png" srcset="/img/loading.gif" lazyload alt="image-20210723215850307"></p>
+<h4 id="1）引入依赖"><a href="#1）引入依赖" class="headerlink" title="1）引入依赖"></a>1）引入依赖</h4><p>在hotel-admin、hotel-demo中引入rabbitmq的依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-comment">&lt;!--amqp--&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.boot<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-boot-starter-amqp<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h4 id="2）声明队列交换机名称"><a href="#2）声明队列交换机名称" class="headerlink" title="2）声明队列交换机名称"></a>2）声明队列交换机名称</h4><p>在hotel-admin和hotel-demo中的<code>cn.itcast.hotel.constatnts</code>包下新建一个类<code>MqConstants</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> cn.itcast.hotel.constatnts;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MqConstants</span> &#123;<br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 交换机</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">static</span> <span class="hljs-type">String</span> <span class="hljs-variable">HOTEL_EXCHANGE</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;hotel.topic&quot;</span>;<br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 监听新增和修改的队列</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">static</span> <span class="hljs-type">String</span> <span class="hljs-variable">HOTEL_INSERT_QUEUE</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;hotel.insert.queue&quot;</span>;<br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 监听删除的队列</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">static</span> <span class="hljs-type">String</span> <span class="hljs-variable">HOTEL_DELETE_QUEUE</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;hotel.delete.queue&quot;</span>;<br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 新增或修改的RoutingKey</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">static</span> <span class="hljs-type">String</span> <span class="hljs-variable">HOTEL_INSERT_KEY</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;hotel.insert&quot;</span>;<br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 删除的RoutingKey</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">static</span> <span class="hljs-type">String</span> <span class="hljs-variable">HOTEL_DELETE_KEY</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;hotel.delete&quot;</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h4 id="3）声明队列交换机"><a href="#3）声明队列交换机" class="headerlink" title="3）声明队列交换机"></a>3）声明队列交换机</h4><p>在hotel-demo中，定义配置类，声明队列、交换机：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> cn.itcast.hotel.config;<br><br><span class="hljs-keyword">import</span> cn.itcast.hotel.constants.MqConstants;<br><span class="hljs-keyword">import</span> org.springframework.amqp.core.Binding;<br><span class="hljs-keyword">import</span> org.springframework.amqp.core.BindingBuilder;<br><span class="hljs-keyword">import</span> org.springframework.amqp.core.Queue;<br><span class="hljs-keyword">import</span> org.springframework.amqp.core.TopicExchange;<br><span class="hljs-keyword">import</span> org.springframework.context.annotation.Bean;<br><span class="hljs-keyword">import</span> org.springframework.context.annotation.Configuration;<br><br><span class="hljs-meta">@Configuration</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MqConfig</span> &#123;<br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-keyword">public</span> TopicExchange <span class="hljs-title function_">topicExchange</span><span class="hljs-params">()</span>&#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TopicExchange</span>(MqConstants.HOTEL_EXCHANGE, <span class="hljs-literal">true</span>, <span class="hljs-literal">false</span>);<br>    &#125;<br><br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-keyword">public</span> Queue <span class="hljs-title function_">insertQueue</span><span class="hljs-params">()</span>&#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Queue</span>(MqConstants.HOTEL_INSERT_QUEUE, <span class="hljs-literal">true</span>);<br>    &#125;<br><br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-keyword">public</span> Queue <span class="hljs-title function_">deleteQueue</span><span class="hljs-params">()</span>&#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Queue</span>(MqConstants.HOTEL_DELETE_QUEUE, <span class="hljs-literal">true</span>);<br>    &#125;<br><br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-keyword">public</span> Binding <span class="hljs-title function_">insertQueueBinding</span><span class="hljs-params">()</span>&#123;<br>        <span class="hljs-keyword">return</span> BindingBuilder.bind(insertQueue()).to(topicExchange()).with(MqConstants.HOTEL_INSERT_KEY);<br>    &#125;<br><br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-keyword">public</span> Binding <span class="hljs-title function_">deleteQueueBinding</span><span class="hljs-params">()</span>&#123;<br>        <span class="hljs-keyword">return</span> BindingBuilder.bind(deleteQueue()).to(topicExchange()).with(MqConstants.HOTEL_DELETE_KEY);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="3-2-4-发送MQ消息"><a href="#3-2-4-发送MQ消息" class="headerlink" title="3.2.4.发送MQ消息"></a>3.2.4.发送MQ消息</h3><p>在hotel-admin中的增、删、改业务中分别发送MQ消息：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723221843816.png" srcset="/img/loading.gif" lazyload alt="image-20210723221843816"></p>
+<h3 id="3-2-5-接收MQ消息"><a href="#3-2-5-接收MQ消息" class="headerlink" title="3.2.5.接收MQ消息"></a>3.2.5.接收MQ消息</h3><p>hotel-demo接收到MQ消息要做的事情包括：</p>
+<ul>
+<li>新增消息：根据传递的hotel的id查询hotel信息，然后新增一条数据到索引库</li>
+<li>删除消息：根据传递的hotel的id删除索引库中的一条数据</li>
+</ul>
+<p>1）首先在hotel-demo的<code>cn.itcast.hotel.service</code>包下的<code>IHotelService</code>中新增新增、删除业务</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">void</span> <span class="hljs-title function_">deleteById</span><span class="hljs-params">(Long id)</span>;<br><br><span class="hljs-keyword">void</span> <span class="hljs-title function_">insertById</span><span class="hljs-params">(Long id)</span>;<br></code></pre></td></tr></table></figure>
+
+
+
+<p>2）给hotel-demo中的<code>cn.itcast.hotel.service.impl</code>包下的HotelService中实现业务：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">deleteById</span><span class="hljs-params">(Long id)</span> &#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">// 1.准备Request</span><br>        <span class="hljs-type">DeleteRequest</span> <span class="hljs-variable">request</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">DeleteRequest</span>(<span class="hljs-string">&quot;hotel&quot;</span>, id.toString());<br>        <span class="hljs-comment">// 2.发送请求</span><br>        client.delete(request, RequestOptions.DEFAULT);<br>    &#125; <span class="hljs-keyword">catch</span> (IOException e) &#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(e);<br>    &#125;<br>&#125;<br><br><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">insertById</span><span class="hljs-params">(Long id)</span> &#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">// 0.根据id查询酒店数据</span><br>        <span class="hljs-type">Hotel</span> <span class="hljs-variable">hotel</span> <span class="hljs-operator">=</span> getById(id);<br>        <span class="hljs-comment">// 转换为文档类型</span><br>        <span class="hljs-type">HotelDoc</span> <span class="hljs-variable">hotelDoc</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">HotelDoc</span>(hotel);<br><br>        <span class="hljs-comment">// 1.准备Request对象</span><br>        <span class="hljs-type">IndexRequest</span> <span class="hljs-variable">request</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IndexRequest</span>(<span class="hljs-string">&quot;hotel&quot;</span>).id(hotel.getId().toString());<br>        <span class="hljs-comment">// 2.准备Json文档</span><br>        request.source(JSON.toJSONString(hotelDoc), XContentType.JSON);<br>        <span class="hljs-comment">// 3.发送请求</span><br>        client.index(request, RequestOptions.DEFAULT);<br>    &#125; <span class="hljs-keyword">catch</span> (IOException e) &#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(e);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<p>3）编写监听器</p>
+<p>在hotel-demo中的<code>cn.itcast.hotel.mq</code>包新增一个类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> cn.itcast.hotel.mq;<br><br><span class="hljs-keyword">import</span> cn.itcast.hotel.constants.MqConstants;<br><span class="hljs-keyword">import</span> cn.itcast.hotel.service.IHotelService;<br><span class="hljs-keyword">import</span> org.springframework.amqp.rabbit.annotation.RabbitListener;<br><span class="hljs-keyword">import</span> org.springframework.beans.factory.annotation.Autowired;<br><span class="hljs-keyword">import</span> org.springframework.stereotype.Component;<br><br><span class="hljs-meta">@Component</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">HotelListener</span> &#123;<br><br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> IHotelService hotelService;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 监听酒店新增或修改的业务</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> id 酒店id</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-meta">@RabbitListener(queues = MqConstants.HOTEL_INSERT_QUEUE)</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">listenHotelInsertOrUpdate</span><span class="hljs-params">(Long id)</span>&#123;<br>        hotelService.insertById(id);<br>    &#125;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 监听酒店删除的业务</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> id 酒店id</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-meta">@RabbitListener(queues = MqConstants.HOTEL_DELETE_QUEUE)</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">listenHotelDelete</span><span class="hljs-params">(Long id)</span>&#123;<br>        hotelService.deleteById(id);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+<h1 id="4-集群"><a href="#4-集群" class="headerlink" title="4.集群"></a>4.集群</h1><p>单机的elasticsearch做数据存储，必然面临两个问题：海量数据存储问题、单点故障问题。</p>
+<ul>
+<li>海量数据存储问题：将索引库从逻辑上拆分为N个分片（shard），存储到多个节点</li>
+<li>单点故障问题：将分片数据在不同节点备份（replica ）</li>
+</ul>
+<p><strong>ES集群相关概念</strong>:</p>
+<ul>
+<li><p>集群（cluster）：一组拥有共同的 cluster name 的 节点。</p>
+</li>
+<li><p><font color="red">节点（node)</font>   ：集群中的一个 Elasticearch 实例</p>
+</li>
+<li><p><font color="red">分片（shard）</font>：索引可以被拆分为不同的部分进行存储，称为分片。在集群环境下，一个索引的不同分片可以拆分到不同的节点中</p>
+<p>解决问题：数据量太大，单点存储量有限的问题。</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20200104124440086-5602723.png" srcset="/img/loading.gif" lazyload alt="image-20200104124440086"></p>
+<blockquote>
+<p>此处，我们把数据分成3片：shard0、shard1、shard2</p>
+</blockquote>
+</li>
+<li><p>主分片（Primary shard）：相对于副本分片的定义。</p>
+</li>
+<li><p>副本分片（Replica shard）每个主分片可以有一个或者多个副本，数据和主分片一样。</p>
+<p>​</p>
+</li>
+</ul>
+<p>	</p>
+<p>数据备份可以保证高可用，但是每个分片备份一份，所需要的节点数量就会翻一倍，成本实在是太高了！</p>
+<p>为了在高可用和成本间寻求平衡，我们可以这样做：</p>
+<ul>
+<li>首先对数据分片，存储到不同节点</li>
+<li>然后对每个分片进行备份，放到对方节点，完成互相备份</li>
+</ul>
+<p>这样可以大大减少所需要的服务节点数量，如图，我们以3分片，每个分片备份一份为例：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20200104124551912.png" srcset="/img/loading.gif" lazyload alt="image-20200104124551912"></p>
+<p>现在，每个分片都有1个备份，存储在3个节点：</p>
+<ul>
+<li>node0：保存了分片0和1</li>
+<li>node1：保存了分片0和2</li>
+<li>node2：保存了分片1和2</li>
+</ul>
+<h2 id="4-1-搭建ES集群"><a href="#4-1-搭建ES集群" class="headerlink" title="4.1.搭建ES集群"></a>4.1.搭建ES集群</h2><p>参考课前资料的文档：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723222732427.png" srcset="/img/loading.gif" lazyload alt="image-20210723222732427"> </p>
+<p>其中的第四章节：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723222812619.png" srcset="/img/loading.gif" lazyload alt="image-20210723222812619"> </p>
+<h2 id="4-2-集群脑裂问题"><a href="#4-2-集群脑裂问题" class="headerlink" title="4.2.集群脑裂问题"></a>4.2.集群脑裂问题</h2><h3 id="4-2-1-集群职责划分"><a href="#4-2-1-集群职责划分" class="headerlink" title="4.2.1.集群职责划分"></a>4.2.1.集群职责划分</h3><p>elasticsearch中集群节点有不同的职责划分：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723223008967.png" srcset="/img/loading.gif" lazyload alt="image-20210723223008967"></p>
+<p>默认情况下，集群中的任何一个节点都同时具备上述四种角色。</p>
+<p>但是真实的集群一定要将集群职责分离：</p>
+<ul>
+<li>master节点：对CPU要求高，但是内存要求第</li>
+<li>data节点：对CPU和内存要求都高</li>
+<li>coordinating节点：对网络带宽、CPU要求高</li>
+</ul>
+<p>职责分离可以让我们根据不同节点的需求分配不同的硬件去部署。而且避免业务之间的互相干扰。</p>
+<p>一个典型的es集群职责划分如图：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723223629142.png" srcset="/img/loading.gif" lazyload alt="image-20210723223629142"></p>
+<h3 id="4-2-2-脑裂问题"><a href="#4-2-2-脑裂问题" class="headerlink" title="4.2.2.脑裂问题"></a>4.2.2.脑裂问题</h3><p>脑裂是因为集群中的节点失联导致的。</p>
+<p>例如一个集群中，主节点与其它节点失联：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723223804995.png" srcset="/img/loading.gif" lazyload alt="image-20210723223804995"></p>
+<p>此时，node2和node3认为node1宕机，就会重新选主：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723223845754.png" srcset="/img/loading.gif" lazyload alt="image-20210723223845754"></p>
+<p>当node3当选后，集群继续对外提供服务，node2和node3自成集群，node1自成集群，两个集群数据不同步，出现数据差异。</p>
+<p>当网络恢复后，因为集群中有两个master节点，集群状态的不一致，出现脑裂的情况：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723224000555.png" srcset="/img/loading.gif" lazyload alt="image-20210723224000555"></p>
+<p>解决脑裂的方案是，要求选票超过 ( eligible节点数量 + 1 ）&#x2F; 2 才能当选为主，因此eligible节点数量最好是奇数。对应配置项是discovery.zen.minimum_master_nodes，在es7.0以后，已经成为默认配置，因此一般不会发生脑裂问题</p>
+<p>例如：3个节点形成的集群，选票必须超过 （3 + 1） &#x2F; 2 ，也就是2票。node3得到node2和node3的选票，当选为主。node1只有自己1票，没有当选。集群中依然只有1个主节点，没有出现脑裂。</p>
+<h3 id="4-2-3-小结"><a href="#4-2-3-小结" class="headerlink" title="4.2.3.小结"></a>4.2.3.小结</h3><p>master eligible节点的作用是什么？</p>
+<ul>
+<li>参与集群选主</li>
+<li>主节点可以管理集群状态、管理分片信息、处理创建和删除索引库的请求</li>
+</ul>
+<p>data节点的作用是什么？</p>
+<ul>
+<li>数据的CRUD</li>
+</ul>
+<p>coordinator节点的作用是什么？</p>
+<ul>
+<li><p>路由请求到其它节点</p>
+</li>
+<li><p>合并查询到的结果，返回给用户</p>
+</li>
+</ul>
+<h2 id="4-3-集群分布式存储"><a href="#4-3-集群分布式存储" class="headerlink" title="4.3.集群分布式存储"></a>4.3.集群分布式存储</h2><p>当新增文档时，应该保存到不同分片，保证数据均衡，那么coordinating node如何确定数据该存储到哪个分片呢？</p>
+<h3 id="4-3-1-分片存储测试"><a href="#4-3-1-分片存储测试" class="headerlink" title="4.3.1.分片存储测试"></a>4.3.1.分片存储测试</h3><p>插入三条数据：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723225006058.png" srcset="/img/loading.gif" lazyload alt="image-20210723225006058"></p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723225034637.png" srcset="/img/loading.gif" lazyload alt="image-20210723225034637"></p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723225112029.png" srcset="/img/loading.gif" lazyload alt="image-20210723225112029"></p>
+<p>测试可以看到，三条数据分别在不同分片：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723225227928.png" srcset="/img/loading.gif" lazyload alt="image-20210723225227928"></p>
+<p>结果：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723225342120.png" srcset="/img/loading.gif" lazyload alt="image-20210723225342120"></p>
+<h3 id="4-3-2-分片存储原理"><a href="#4-3-2-分片存储原理" class="headerlink" title="4.3.2.分片存储原理"></a>4.3.2.分片存储原理</h3><p>elasticsearch会通过hash算法来计算文档应该存储到哪个分片：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723224354904.png" srcset="/img/loading.gif" lazyload alt="image-20210723224354904"></p>
+<p>说明：</p>
+<ul>
+<li>_routing默认是文档的id</li>
+<li>算法与分片数量有关，因此索引库一旦创建，分片数量不能修改！</li>
+</ul>
+<p>新增文档的流程如下：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723225436084.png" srcset="/img/loading.gif" lazyload alt="image-20210723225436084"></p>
+<p>解读：</p>
+<ul>
+<li>1）新增一个id&#x3D;1的文档</li>
+<li>2）对id做hash运算，假如得到的是2，则应该存储到shard-2</li>
+<li>3）shard-2的主分片在node3节点，将数据路由到node3</li>
+<li>4）保存文档</li>
+<li>5）同步给shard-2的副本replica-2，在node2节点</li>
+<li>6）返回结果给coordinating-node节点</li>
+</ul>
+<h2 id="4-4-集群分布式查询"><a href="#4-4-集群分布式查询" class="headerlink" title="4.4.集群分布式查询"></a>4.4.集群分布式查询</h2><p>elasticsearch的查询分成两个阶段：</p>
+<ul>
+<li><p>scatter phase：分散阶段，coordinating node会把请求分发到每一个分片</p>
+</li>
+<li><p>gather phase：聚集阶段，coordinating node汇总data node的搜索结果，并处理为最终结果集返回给用户</p>
+</li>
+</ul>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723225809848.png" srcset="/img/loading.gif" lazyload alt="image-20210723225809848"></p>
+<h2 id="4-5-集群故障转移"><a href="#4-5-集群故障转移" class="headerlink" title="4.5.集群故障转移"></a>4.5.集群故障转移</h2><p>集群的master节点会监控集群中的节点状态，如果发现有节点宕机，会立即将宕机节点的分片数据迁移到其它节点，确保数据安全，这个叫做故障转移。</p>
+<p>1）例如一个集群结构如图：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723225945963.png" srcset="/img/loading.gif" lazyload alt="image-20210723225945963"></p>
+<p>现在，node1是主节点，其它两个节点是从节点。</p>
+<p>2）突然，node1发生了故障：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723230020574.png" srcset="/img/loading.gif" lazyload alt="image-20210723230020574"></p>
+<p>宕机后的第一件事，需要重新选主，例如选中了node2：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723230055974.png" srcset="/img/loading.gif" lazyload alt="image-20210723230055974"></p>
+<p>node2成为主节点后，会检测集群监控状态，发现：shard-1、shard-0没有副本节点。因此需要将node1上的数据迁移到node2、node3：</p>
+<p><img src="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E03/%25E7%25A0%2581%25E7%25A5%259E%25E4%25B9%258B%25E8%25B7%25AF/%25E5%25AD%25A6%25E4%25B9%25A0%25E8%25B5%2584%25E6%2596%2599/day07-Elasticsearch03/%25E8%25AE%25B2%25E4%25B9%2589/assets/image-20210723230216642.png" srcset="/img/loading.gif" lazyload alt="image-20210723230216642"></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/SpringCloud/" class="category-chain-item">SpringCloud</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>分布式搜索引擎03</div>
+      <div>http://example.com/2023/01/14/分布式搜索引擎03/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>John Doe</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年1月14日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/01/14/%E5%88%86%E5%B8%83%E5%BC%8F%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E02/" title="分布式搜索引擎02">
+                        <span class="hidden-mobile">分布式搜索引擎02</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+  
+  <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+<script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+<script type="text/javascript" src="/js/fireworks.js"></script>
+<script type="text/javascript" src="\js\snow.js"></script>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script><script async>window.onload=function(){var a=document.createElement('script'),b=document.getElementsByTagName('script')[0];a.type='text/javascript',a.async=!0,a.src='/sw-register.js?v='+Date.now(),b.parentNode.insertBefore(a,b)};</script></body></html>
